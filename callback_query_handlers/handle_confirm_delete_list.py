@@ -3,10 +3,11 @@
 from telebot.types import CallbackQuery
 from models import WatchList
 from bot_instance import bot
+from config import CONFIRM_DELETE_LIST_PREFIX
 
 
 # Обработчик подтверждения удаления списка
-@bot.callback_query_handler(func=lambda call: call.data.startswith('confirm_delete:'))
+@bot.callback_query_handler(func=lambda call: call.data.startswith(f'{CONFIRM_DELETE_LIST_PREFIX}:'))
 def handle_confirm_delete_list(call: CallbackQuery):
     """Обработчик подтверждения удаления списка"""
     user_id = call.from_user.id

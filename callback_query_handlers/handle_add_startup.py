@@ -4,10 +4,11 @@ from telebot.types import CallbackQuery
 from models import WatchList
 from bot_instance import bot
 import callback_query_handlers
+from config import ADD_STARTUP_PREFIX, SHOW_LIST_PREFIX
 
 
 # Обработчик добавления показа списка при запуске
-@bot.callback_query_handler(func=lambda call: call.data.startswith('add_startup:'))
+@bot.callback_query_handler(func=lambda call: call.data.startswith(f'{ADD_STARTUP_PREFIX}:'))
 def handle_add_startup(call: CallbackQuery):
     """Обработчик добавления показа списка при запуске"""
     user_id = call.from_user.id
@@ -34,7 +35,7 @@ def handle_add_startup(call: CallbackQuery):
 
         # Обновляем отображение списка
         new_call = call
-        new_call.data = f"show_list:{list_id}"
+        new_call.data = f"{SHOW_LIST_PREFIX}:{list_id}"
         callback_query_handlers.handle_list_selection(new_call)
 
     except Exception as e:

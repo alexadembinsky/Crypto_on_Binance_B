@@ -1,12 +1,14 @@
-# Обработчик кнопки "Удалить пару"
+# Обработчик кнопки "Удалить пару" под списком пар (нажатие на кнопку выводит кнопки с тикерами торговых пар
+# для удаления конкретных пар)
 
 from telebot.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from models import WatchList
 from bot_instance import bot
+from config import REMOVE_SOME_PAIR_BUTTON_PREFIX
 
 
 # Обработчик кнопки "Удалить пару"
-@bot.callback_query_handler(func=lambda call: call.data.startswith('remove_pair:'))
+@bot.callback_query_handler(func=lambda call: call.data.startswith(f'{REMOVE_SOME_PAIR_BUTTON_PREFIX}:'))
 def handle_remove_pair_button(call: CallbackQuery):
     """Обработчик кнопки 'Удалить пару'"""
     user_id = call.from_user.id

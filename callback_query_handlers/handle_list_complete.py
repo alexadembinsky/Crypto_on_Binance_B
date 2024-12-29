@@ -4,10 +4,11 @@ from telebot.types import CallbackQuery
 from models import WatchList
 from bot_instance import bot
 import callback_query_handlers
+from config import LIST_COMPLETE
 
 
 # Обработчик завершения добавления пар в список / кнопки "Завершить редактирование списка"
-@bot.callback_query_handler(func=lambda call: call.data == "list_complete")
+@bot.callback_query_handler(func=lambda call: call.data == f"{LIST_COMPLETE}")
 def handle_list_complete(call: CallbackQuery):
     """Обработчик завершения добавления пар в список / кнопки "Завершить редактирование списка" """
 

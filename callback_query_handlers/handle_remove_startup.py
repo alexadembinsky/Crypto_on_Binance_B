@@ -4,10 +4,11 @@ from telebot.types import CallbackQuery
 from models import WatchList
 from bot_instance import bot
 import callback_query_handlers
+from config import REMOVE_STARTUP_PREFIX
 
 
 # Обработчик отмены показа списка при запуске
-@bot.callback_query_handler(func=lambda call: call.data.startswith('remove_startup:'))
+@bot.callback_query_handler(func=lambda call: call.data.startswith(f'{REMOVE_STARTUP_PREFIX}:'))
 def handle_remove_startup(call: CallbackQuery):
     """Обработчик отмены показа списка при запуске"""
     user_id = call.from_user.id
@@ -35,5 +36,5 @@ def handle_remove_startup(call: CallbackQuery):
         # print(f"Error in handle_remove_startup: {str(e)}")  # Отладка
         bot.answer_callback_query(
             call.id,
-            "Ошибка при отмене показа при запуске!"
+            "Ошибка при отмене показа списка при запуске!"
         )

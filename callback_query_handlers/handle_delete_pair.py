@@ -1,13 +1,15 @@
-# обработчик выбора пары для удаления
+# обработчик выбора пары для удаления из списка
+# (обработчик кнопки с тикером торговой пары, нажатие на которую приводит к удалению торговой пары из списка)
 
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from models import User, init_db, WatchList, TradingPair
 from bot_instance import bot, BotStates
 import callback_query_handlers
+from config import DELETE_THE_PAIR_PREFIX
 
 
 # обработчик выбора пары для удаления
-@bot.callback_query_handler(func=lambda call: call.data.startswith('delete_pair:'))
+@bot.callback_query_handler(func=lambda call: call.data.startswith(f'{DELETE_THE_PAIR_PREFIX}:'))
 def handle_delete_pair(call: CallbackQuery):
     """Обработчик выбора пары для удаления"""
     user_id = call.from_user.id

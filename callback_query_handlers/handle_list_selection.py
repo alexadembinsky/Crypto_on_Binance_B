@@ -4,6 +4,14 @@ from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 from models import WatchList
 from binance_api import BinanceAPI
 from bot_instance import bot
+from config import (
+    ADD_PAIR_TO_LIST_PREFIX,
+    REMOVE_PAIR_FROM_LIST_PREFIX,
+    RENAME_LIST_PREFIX,
+    DELETE_LIST_PREFIX,
+    REMOVE_STARTUP_PREFIX,
+    ADD_STARTUP_PREFIX
+)
 
 
 # Обработчик выбора списка (нажатия на список в перечне списков) - показывает список с кнопками управления
@@ -26,22 +34,22 @@ def handle_list_selection(call: CallbackQuery):
     # Создаем клавиатуру с действиями
     markup = InlineKeyboardMarkup(row_width=2)
     markup.add(
-        InlineKeyboardButton("Добавить пару", callback_data=f"add_pair:{list_id}"),
-        InlineKeyboardButton("Удалить пару", callback_data=f"remove_pair:{list_id}"),
-        InlineKeyboardButton("Переименовать", callback_data=f"rename_list:{list_id}"),
-        InlineKeyboardButton("Удалить список", callback_data=f"delete_list:{list_id}")
+        InlineKeyboardButton("Добавить пару", callback_data=f"{ADD_PAIR_TO_LIST_PREFIX}:{list_id}"),
+        InlineKeyboardButton("Удалить пару", callback_data=f"{REMOVE_PAIR_FROM_LIST_PREFIX}:{list_id}"),
+        InlineKeyboardButton("Переименовать", callback_data=f"{RENAME_LIST_PREFIX}:{list_id}"),
+        InlineKeyboardButton("Удалить список", callback_data=f"{DELETE_LIST_PREFIX}:{list_id}")
     )
 
     # Добавляем кнопку показа при запуске
     if watchlist.show_on_startup:
         markup.add(InlineKeyboardButton(
             "Не показывать список при запуске",
-            callback_data=f"remove_startup:{list_id}"
+            callback_data=f"{REMOVE_STARTUP_PREFIX}:{list_id}"
         ))
     else:
         markup.add(InlineKeyboardButton(
             "Показывать список при запуске",
-            callback_data=f"add_startup:{list_id}"
+            callback_data=f"{ADD_STARTUP_PREFIX}:{list_id}"
         ))
 
     if not watchlist.pairs.count():

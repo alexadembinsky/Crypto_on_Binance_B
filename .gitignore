@@ -1,0 +1,30 @@
+!__*__.*
+!.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Database
+*.db
+*.sqlite3
+
+# IDE
+.idea/.vscode/
+
+# my files
+handlers.txt
+*_old.py
+*_bad.py
+*_new_and_bad.py
+
+*!.py
+*_+.*
+
+

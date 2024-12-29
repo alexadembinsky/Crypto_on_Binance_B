@@ -1,0 +1,16 @@
+# Импорт обработчиков кнопок:
+
+from .handle_add_pair_button import handle_add_pair_button
+from .handle_add_startup import handle_add_startup
+from .handle_cancel_delete_list import handle_cancel_delete_list
+from .handle_cancel_pairs import handle_cancel_pairs
+from .handle_confirm_delete_list import handle_confirm_delete_list
+from .handle_delete_list_button import handle_delete_list_button
+from .handle_delete_pair import handle_delete_pair
+from .handle_list_complete import handle_list_complete
+from .handle_list_selection import handle_list_selection
+from .handle_remove_pair_button import handle_remove_pair_button
+from .handle_remove_startup import handle_remove_startup
+from .handle_rename_list_button import handle_rename_list_button
+from .handle_show_pairs import handle_show_pairs
+

@@ -1,4 +1,6 @@
 # Функция для number agreement/pluralization в русском языке. Согласует "окружение" чисел по грамматической форме
+from config import NUMERICAL_CONTEXT
+
 
 def rus_number_agreement(pre_word: str, number: int, post_word: str) -> str:
     """
@@ -22,7 +24,7 @@ def rus_number_agreement(pre_word: str, number: int, post_word: str) -> str:
     (напр., 'Обнаружен 21 камень', 'Поставлены 22 контейнера')
     :rtype: str
     """
-    from numerical_context import NUMERICAL_CONTEXT
+    # from config import NUMERICAL_CONTEXT
 
     # проверка типа аргументов:
     if not isinstance(pre_word, str):

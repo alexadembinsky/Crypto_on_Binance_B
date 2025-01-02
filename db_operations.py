@@ -68,14 +68,14 @@ def delete_watchlist(list_id: int, user_id: int) -> bool:
     return False
 
 
-def rename_watchlist(list_id: int, user_id: int, new_name: str) -> bool:
+def rename_watchlist(watchlist: WatchList, new_name: str):
     """Переименовать список"""
-    watchlist = get_watchlist(list_id, user_id)
-    if watchlist:
+    # watchlist = get_watchlist(list_id, user_id)
+    try:
         watchlist.name = new_name
         watchlist.save()
-        return True
-    return False
+    except Exception:
+        pass
 
 
 def get_trading_pair(pair_id: int, user_id: int) -> Optional[TradingPair]:

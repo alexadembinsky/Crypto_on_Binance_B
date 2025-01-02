@@ -14,7 +14,7 @@ def handle_list_complete(call: CallbackQuery):
 
     # Получаем ID списка из предыдущего сообщения
     message_text = call.message.text
-    list_name = message_text.split("'")[1]  # Получаем название списка между кавычками
+    list_name = message_text.split('"')[1]  # Получаем название списка между кавычками
 
     # Находим список по имени и ID пользователя
     watchlist = WatchList.get(

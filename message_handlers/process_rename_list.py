@@ -4,6 +4,7 @@ from telebot.types import Message
 from models import WatchList
 from peewee import IntegrityError
 from bot_instance import bot, BotStates
+from db_operations import get_watchlist, rename_watchlist
 
 
 # Обработчик ввода нового названия списка
@@ -26,31 +27,44 @@ def process_rename_list(message: Message):
         with bot.retrieve_data(user_id) as data:
             list_id = data['list_id']
 
-        # Получаем и переименовываем список
-        watchlist = WatchList.get(
-            (WatchList.list_id == list_id) &
-            (WatchList.user == user_id)
-        )
-        old_name = watchlist.name
-        watchlist.name = new_name
-        watchlist.save()
+        # Получаем и переименовываем список @ОБД
+        #watchlist = WatchList.get(
+        #    (WatchList.list_id == list_id) &
+        #    (WatchList.user == user_id)
+        #)
+        #old_name = watchlist.name
+        #watchlist.name = new_name
+        #watchlist.save()
+        try:
+            watchlist = get_watchlist(list_id, user_id)
+            old_name = watchlist.name
+            try:
+                rename_watchlist(watchlist, new_name)
 
-        bot.send_message(
-            user_id,
-            f"Список '{old_name}' переименован в '{new_name}'!"
-        )
-
-    except IntegrityError:
-        bot.send_message(
-            user_id,
-            f"У вас уже есть список с названием '{new_name}'. "
-            "Введите другое название:"
-        )
-        return
+                bot.send_message(
+                    user_id,
+                    f"Список '{old_name}' переименован в '{new_name}'!"
+                )
+            except IntegrityError:
+                bot.send_message(
+                    user_id,
+                    f"У вас уже есть список с названием '{new_name}'. "
+                    "Введите другое название:"
+                )
+            except Exception as e:
+                bot.send_message(
+                    user_id,
+                    f"Произошла ошибка при переименовании списка: {str(e)}"
+                )
+        except Exception as e:
+            bot.send_message(
+                user_id,
+                f"Не удалось получить параметры списка: {str(e)}"
+            )
     except Exception as e:
         bot.send_message(
             user_id,
-            f"Произошла ошибка при переименовании списка: {str(e)}"
+            f"Не удалось получить ID списка из данных состояния: {str(e)}"
         )
 
     # Сбрасываем состояние

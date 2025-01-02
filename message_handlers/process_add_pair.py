@@ -4,6 +4,7 @@ from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from models import WatchList, TradingPair
 from binance_api import BinanceAPI
 from bot_instance import bot, BotStates
+from db_operations import get_watchlist, check_pair_exists, create_trading_pair
 
 
 # Обработчик ввода торговой пары при добавлении в список
@@ -31,29 +32,34 @@ def process_add_pair(message: Message):
             )
             return  # /новое
 
-        # Получаем список и добавляем пару
-        watchlist = WatchList.get(
-            (WatchList.list_id == list_id) &
-            (WatchList.user == user_id)
-        )
+        # Получаем список: @ОБД
+        #watchlist = WatchList.get(
+        #    (WatchList.list_id == list_id) &
+        #    (WatchList.user == user_id)
+        #)
+        watchlist = get_watchlist(list_id, user_id)
 
-        # Проверяем, нет ли уже такой пары в списке
-        existing_pair = TradingPair.get_or_none(
-            (TradingPair.watchlist == watchlist) &
-            (TradingPair.symbol == symbol)
-        )
+        # Проверяем, нет ли уже такой пары в списке и, если нет, до добавляем; если есть, сообщаем об этом @ОБД
+        #existing_pair = TradingPair.get_or_none(
+        #    (TradingPair.watchlist == watchlist) &
+        #    (TradingPair.symbol == symbol)
+        #)
 
-        if existing_pair:
-            bot.send_message(
-                user_id,
-                f"Пара {symbol} уже есть в этом списке!"
-            )
+        #if existing_pair:
+        #    bot.send_message(
+        #        user_id,
+        #        f"Пара {symbol} уже есть в этом списке!"
+        #    )
+        #else:
+        #    # Добавляем новую пару @ОБД
+        #    TradingPair.create(
+        #        watchlist=watchlist,
+        #        symbol=symbol
+        #    )
+        if check_pair_exists(watchlist, symbol):
+            bot.send_message(user_id, f"Пара {symbol} уже есть в этом списке!")
         else:
-            # Добавляем новую пару
-            TradingPair.create(
-                watchlist=watchlist,
-                symbol=symbol
-            )
+            create_trading_pair(watchlist, symbol)
             # Выводим клавиатуру добавления еще одной пары
             markup = InlineKeyboardMarkup(row_width=1)
             markup.add(
@@ -66,25 +72,13 @@ def process_add_pair(message: Message):
                                         "не торгуется на бирже.")
             else:
                 msg_about_zero_price = ""
+
             # Отправляем основное сообщение
             bot.send_message(
                 user_id,
-                f"Пара {symbol} успешно добавлена в список '{watchlist.name}'!{msg_about_zero_price}",
+                f'Пара {symbol} успешно добавлена в список "{watchlist.name}"!{msg_about_zero_price}',
                 reply_markup=markup
             )
-
-            # Почему-то не выводится @проблема
-            # Выводим клавиатуру добавления еще одной пары
-            #markup = InlineKeyboardMarkup()
-            #markup.add(
-            #    InlineKeyboardButton("Добавить ещё пару", callback_data=f"add_pair:{list_id}"),
-            #    InlineKeyboardButton("Список готов", callback_data="list_complete")
-            #)
-            ## Отправляем сообщение с клавиатурой
-            #bot.send_message(
-            #    user_id,
-            #    " ",
-            #    reply_markup=markup)
 
     except Exception as e:
         # print(f"Error in process_add_pair: {str(e)}")  # Отладка

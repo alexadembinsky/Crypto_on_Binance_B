@@ -1,10 +1,10 @@
 # Обработчик завершения добавления пар в список / кнопки "Завершить редактирование списка"
 
 from telebot.types import CallbackQuery
-from models import WatchList
 from bot_instance import bot
 import callback_query_handlers
 from config import LIST_COMPLETE
+from db_operations import get_watchlist
 
 
 # Обработчик завершения добавления пар в список / кнопки "Завершить редактирование списка"
@@ -19,19 +19,19 @@ def handle_list_complete(call: CallbackQuery):
         list_id = data.get('list_id')
 
     # Находим список по ID и ID пользователя
-    watchlist = WatchList.get(
-        (WatchList.list_id == list_id) &
-        (WatchList.user == user_id)
-    )
+    watchlist = get_watchlist(list_id, user_id)
 
-    # Модифицируем текущий callback
-    call.data = f"show_list:{watchlist.list_id}"
+    if watchlist:
+        # Модифицируем текущий callback
+        call.data = f"show_list:{watchlist.list_id}"
 
-    # Вызываем handle_list_selection с модифицированным callback
-    callback_query_handlers.handle_list_selection(call)
+        # Вызываем handle_list_selection с модифицированным callback
+        callback_query_handlers.handle_list_selection(call)
 
-    # Сбрасываем состояние после завершения
-    bot.delete_state(user_id)
+        # Сбрасываем состояние после завершения
+        bot.delete_state(user_id)
 
-    # Отвечаем на исходный callback
-    bot.answer_callback_query(call.id)
+        # Отвечаем на исходный callback
+        bot.answer_callback_query(call.id)
+    else:
+        bot.answer_callback_query(call.id, "Список не найден")

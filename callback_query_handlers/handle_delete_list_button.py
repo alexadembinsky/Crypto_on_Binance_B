@@ -1,9 +1,9 @@
 # Обработчик кнопки "Удалить список"
 
 from telebot.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from models import WatchList
 from bot_instance import bot
 from config import DELETE_LIST_PREFIX, CONFIRM_DELETE_LIST_PREFIX, CANCEL_DELETE_LIST_PREFIX
+from db_operations import get_watchlist
 
 
 # Обработчик кнопки "Удалить список"
@@ -14,11 +14,12 @@ def handle_delete_list_button(call: CallbackQuery):
     list_id = int(call.data.split(':')[1])
 
     try:
-        # Получаем список
-        watchlist = WatchList.get(
-            (WatchList.list_id == list_id) &
-            (WatchList.user == user_id)
-        )
+        # Получаем список @ОБД
+        #watchlist = WatchList.get(
+        #    (WatchList.list_id == list_id) &
+        #    (WatchList.user == user_id)
+        #)
+        watchlist = get_watchlist(list_id, user_id)
 
         # Создаем клавиатуру с кнопками подтверждения
         markup = InlineKeyboardMarkup()

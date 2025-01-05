@@ -12,14 +12,16 @@ from config import LIST_COMPLETE
 def handle_list_complete(call: CallbackQuery):
     """Обработчик завершения добавления пар в список / кнопки "Завершить редактирование списка" """
 
-    # Получаем ID списка из предыдущего сообщения
-    message_text = call.message.text
-    list_name = message_text.split('"')[1]  # Получаем название списка между кавычками
+    user_id = call.from_user.id
 
-    # Находим список по имени и ID пользователя
+    # Получаем ID списка из состояния
+    with bot.retrieve_data(user_id) as data:
+        list_id = data.get('list_id')
+
+    # Находим список по ID и ID пользователя
     watchlist = WatchList.get(
-        (WatchList.name == list_name) &
-        (WatchList.user == call.from_user.id)
+        (WatchList.list_id == list_id) &
+        (WatchList.user == user_id)
     )
 
     # Модифицируем текущий callback
@@ -27,6 +29,9 @@ def handle_list_complete(call: CallbackQuery):
 
     # Вызываем handle_list_selection с модифицированным callback
     callback_query_handlers.handle_list_selection(call)
+
+    # Сбрасываем состояние после завершения
+    bot.delete_state(user_id)
 
     # Отвечаем на исходный callback
     bot.answer_callback_query(call.id)

@@ -10,8 +10,10 @@ from config import (
     RENAME_LIST_PREFIX,
     DELETE_LIST_PREFIX,
     REMOVE_STARTUP_PREFIX,
-    ADD_STARTUP_PREFIX
+    ADD_STARTUP_PREFIX,
+    THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE
 )
+from db_operations import get_watchlist, get_watchlist_pairs
 
 
 # Обработчик выбора списка (нажатия на список в перечне списков) - показывает список с кнопками управления
@@ -21,13 +23,20 @@ def handle_list_selection(call: CallbackQuery):
     user_id = call.from_user.id
     list_id = int(call.data.split(':')[1])
 
-    # Получаем выбранный список
-    watchlist = WatchList.get_or_none(
-        (WatchList.list_id == list_id) &
-        (WatchList.user == user_id)
-    )
+    ## Получаем выбранный список @ОБД
+    #watchlist = WatchList.get_or_none(
+    #    (WatchList.list_id == list_id) &
+    #    (WatchList.user == user_id)
+    #)
+    watchlist = get_watchlist(list_id, user_id)  # получаем список или None (запрос к БД)
 
-    if not watchlist:
+    if watchlist:
+        try:
+            pairs = get_watchlist_pairs(watchlist)
+        except:
+            bot.answer_callback_query(call.id, "Ошибка получения торговых пар списка")
+            return
+    else:
         bot.answer_callback_query(call.id, "Список не найден!")
         return
 
@@ -52,32 +61,32 @@ def handle_list_selection(call: CallbackQuery):
             callback_data=f"{ADD_STARTUP_PREFIX}:{list_id}"
         ))
 
-    if not watchlist.pairs.count():
+    if len(pairs) == 0:
         pairs_text = "Список пока пуст."
     # если в списке 3 пары или менее, будем получать информацию, запрашивая ее по очереди для каждой пары
     # (сколько пар в списке - столько запросов)
-    elif watchlist.pairs.count() <= 3:
+    elif len(pairs) <= THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE:
         # Получаем пары из списка и их текущие цены
         pairs_text = ""
-        for pair in watchlist.pairs:
+        for pair in pairs:
             try:
                 # Получаем форматированную цену и изменение
                 r_o_f, price_info = BinanceAPI.format_price_change(pair.symbol)
                 pairs_text += f"{r_o_f} {pair.symbol}: {price_info}\n"
-            except Exception as e:
+            except:
                 pairs_text += f"{pair.symbol}: Ошибка получения данных\n"
     # если в списке более 3 пар, делаем запрос без параметра, и отбираем из массива полученной информации только
     # нужные нам пары:
     else:
         # получаем список тикетов ("символов") пар:
         list_of_pairs = []
-        for pair in watchlist.pairs:
+        for pair in pairs:
             list_of_pairs.append(pair.symbol)  # добавляем очередной тикет ("символ")
         #  Получаем форматированный текст с символами изменения, тикерами пар, ценой и величиной изменения
         pairs_text = ''
         try:
             pairs_text = BinanceAPI.get_pairs_with_prices_as_text(list_of_pairs)
-        except Exception as e:
+        except:
             pairs_text += f"Ошибка получения данных для списка пар: {list_of_pairs}\n"
 
     bot.edit_message_text(

@@ -4,6 +4,7 @@ from telebot.types import CallbackQuery
 from models import WatchList
 from bot_instance import bot
 from config import CONFIRM_DELETE_LIST_PREFIX
+from db_operations import delete_watchlist, get_watchlist_name
 
 
 # Обработчик подтверждения удаления списка
@@ -14,23 +15,23 @@ def handle_confirm_delete_list(call: CallbackQuery):
     list_id = int(call.data.split(':')[1])
 
     try:
-        # Получаем список
-        watchlist = WatchList.get(
-            (WatchList.list_id == list_id) &
-            (WatchList.user == user_id)
-        )
-        list_name = watchlist.name
+        # Получаем список @ОБД
+        #watchlist = WatchList.get(
+        #    (WatchList.list_id == list_id) &
+        #    (WatchList.user == user_id)
+        #)
+        #list_name = watchlist.name
 
-        # Удаляем список
-        watchlist.delete_instance(recursive=True)
-
+        ## Удаляем список
+        #watchlist.delete_instance(recursive=True)
+        watchlist_name = get_watchlist_name(list_id, user_id)
+        delete_watchlist(list_id, user_id)
         # Сообщаем об успешном удалении
         bot.edit_message_text(
-            f"Список '{list_name}' удален.",
+            f"Список '{watchlist_name}' удален.",
             user_id,
             call.message.message_id
         )
-
         bot.answer_callback_query(call.id)
 
     except Exception as e:

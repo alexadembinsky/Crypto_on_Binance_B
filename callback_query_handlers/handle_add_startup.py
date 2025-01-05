@@ -5,6 +5,7 @@ from models import WatchList
 from bot_instance import bot
 import callback_query_handlers
 from config import ADD_STARTUP_PREFIX, SHOW_LIST_PREFIX
+from db_operations import set_startup_list, get_watchlist_name
 
 
 # Обработчик добавления показа списка при запуске
@@ -15,22 +16,25 @@ def handle_add_startup(call: CallbackQuery):
     list_id = int(call.data.split(':')[1])
 
     try:
-        # Сначала убираем флаг у всех списков пользователя
-        WatchList.update(show_on_startup=False).where(
-            WatchList.user == user_id
-        ).execute()
+        # @ОБД
+        ## Сначала убираем флаг у всех списков пользователя
+        #WatchList.update(show_on_startup=False).where(
+        #    WatchList.user == user_id
+        #).execute()
 
-        # Устанавливаем флаг для выбранного списка
-        watchlist = WatchList.get(
-            (WatchList.list_id == list_id) &
-            (WatchList.user == user_id)
-        )
-        watchlist.show_on_startup = True
-        watchlist.save()
+        ## Устанавливаем флаг для выбранного списка
+        #watchlist = WatchList.get(
+        #    (WatchList.list_id == list_id) &
+        #    (WatchList.user == user_id)
+        #)
+        #watchlist.show_on_startup = True
+        #watchlist.save()
+        set_startup_list(user_id, list_id)  # устанавливаем флаг показа у листа с данным id
 
+        # Выводим сообщение:
         bot.answer_callback_query(
             call.id,
-            f"Список '{watchlist.name}' будет выводиться при запуске бота"
+            f"Список '{get_watchlist_name(list_id, user_id)}' будет выводиться при запуске бота"
         )
 
         # Обновляем отображение списка

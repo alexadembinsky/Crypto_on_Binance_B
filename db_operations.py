@@ -1,8 +1,35 @@
 # Операции с базой данных
 
-from typing import Optional, List
+# Перечень нижеследующих функций:
+# About user:
+# get_user_by_id - Получить пользователя по ID
+# create_user - Создать нового пользователя
+# get_user_watchlists - Получить все списки пользователя
+#
+# About watchlist:
+# get_watchlist - Получить список по ID и ID пользователя
+# get_watchlist_name - Получить название списка по ID и ID пользователя
+# create_watchlist - Создать новый список
+# get_watchlist_pairs - Получить все пары из списка
+# set_startup_list - Установить список для показа при запуске
+# delete_watchlist - Удалить список
+# rename_watchlist - Переименовать список
+# get_startup_list - Получить список для показа при запуске
+# check_list_exists - Проверить существование списка с таким именем у пользователя
+# create_list_with_validation - Создать новый список с проверками
+# get_pairs_count - Получить количество пар в списке
+#
+# About trading pair:
+# get_trading_pair - Получить торговую пару по ID с проверкой принадлежности пользователю
+# create_trading_pair - Создать новую торговую пару
+# check_pair_exists - Проверить существование пары в списке
+# delete_trading_pair - Удалить торговую пару
+# get_pair_symbol - Получить символ (тикер) торговой пары по её ID
+
+from typing import Optional, List, Tuple
 from models import User, WatchList, TradingPair
 from peewee import Model
+from peewee import DoesNotExist, IntegrityError, DatabaseError
 
 
 def get_user_by_id(user_id: int) -> Optional[User]:
@@ -20,12 +47,28 @@ def create_user(user_id: int, username: str, first_name: str, last_name: str) ->
     )
 
 
+def get_user_watchlists(user: User) -> List[WatchList]:
+    """Получить все списки пользователя"""
+    return list(WatchList.select().where(WatchList.user == user))
+
+
 def get_watchlist(list_id: int, user_id: int) -> Optional[WatchList]:
     """Получить список по ID и ID пользователя"""
     return WatchList.get_or_none(
         (WatchList.list_id == list_id) &
         (WatchList.user == user_id)
     )
+
+
+def get_watchlist_name(list_id: int, user_id: int) -> Optional[str]:
+    """Получить название списка по ID и ID пользователя"""
+    # print('Запущена функция get_watchlist_name()')
+    watchlist = WatchList.get_or_none(
+        (WatchList.list_id == list_id) &
+        (WatchList.user == user_id)
+    )
+    # print('Функция get_watchlist_name() - строка 38')
+    return watchlist.name
 
 
 def create_watchlist(user: User, name: str, show_on_startup: bool = False) -> WatchList:
@@ -37,14 +80,12 @@ def create_watchlist(user: User, name: str, show_on_startup: bool = False) -> Wa
     )
 
 
-def get_user_watchlists(user: User) -> List[WatchList]:
-    """Получить все списки пользователя"""
-    return list(WatchList.select().where(WatchList.user == user))
-
-
 def get_watchlist_pairs(watchlist: WatchList) -> List[TradingPair]:
     """Получить все пары из списка"""
-    return list(TradingPair.select().where(TradingPair.watchlist == watchlist))
+    try:
+        return list(TradingPair.select().where(TradingPair.watchlist == watchlist))
+    except Exception as e:
+        print(f'Ошибка получения всех пар из списка "{watchlist.name}": {e}')
 
 
 def set_startup_list(user_id: int, list_id: int) -> None:
@@ -61,11 +102,12 @@ def set_startup_list(user_id: int, list_id: int) -> None:
 
 def delete_watchlist(list_id: int, user_id: int) -> bool:
     """Удалить список"""
-    watchlist = get_watchlist(list_id, user_id)
-    if watchlist:
-        watchlist.delete_instance(recursive=True)
-        return True
-    return False
+    try:
+        watchlist = get_watchlist(list_id, user_id)
+        if watchlist:
+            watchlist.delete_instance(recursive=True)
+    except Exception as e:
+        print(f'Ошибка удаления листа (list_id={list_id}, user_id={user_id}): {e}')
 
 
 def rename_watchlist(watchlist: WatchList, new_name: str):
@@ -74,16 +116,39 @@ def rename_watchlist(watchlist: WatchList, new_name: str):
     try:
         watchlist.name = new_name
         watchlist.save()
-    except Exception:
-        pass
+    except Exception as e:
+        print(f'Ошибка переименования листа "{watchlist.name}": {e}')
+
+
+def get_startup_list(user_id: int) -> Optional[WatchList]:
+    """Получить список для показа при запуске"""
+    return WatchList.get_or_none(
+        (WatchList.user == user_id) &
+        (WatchList.show_on_startup == True)
+    )
+
+
+def check_list_exists(user_id: int, list_name: str) -> bool:
+    """Проверить существование списка с таким именем у пользователя"""
+    return WatchList.select().join(User).where(
+        (User.user_id == user_id) &
+        (WatchList.name == list_name)
+    ).exists()
 
 
 def get_trading_pair(pair_id: int, user_id: int) -> Optional[TradingPair]:
-    """Получить торговую пару по ID"""
-    return TradingPair.get_or_none(
-        (TradingPair.pair_id == pair_id) &
-        (TradingPair.watchlist.user == user_id)
-    )
+    """Получить торговую пару по ID с проверкой принадлежности пользователю"""
+    try:
+        return (TradingPair
+                .select()
+                .join(WatchList)
+                .where(
+                    (TradingPair.pair_id == pair_id) &
+                    (WatchList.user == user_id)
+                )
+                .get())
+    except DoesNotExist:
+        return None
 
 
 def create_trading_pair(watchlist: WatchList, symbol: str) -> TradingPair:
@@ -102,24 +167,93 @@ def check_pair_exists(watchlist: WatchList, symbol: str) -> bool:
     ) is not None
 
 
-def delete_trading_pair(pair_id: int, user_id: int) -> bool:
-    """Удалить торговую пару"""
-    pair = get_trading_pair(pair_id, user_id)
-    if pair:
-        pair.delete_instance()
-        return True
-    return False
+def create_list_with_validation(user_id: int, list_name: str) -> Tuple[Optional[WatchList], Optional[str]]:
+    """
+    Создать новый список с проверками
 
+    Returns:
+        Tuple[WatchList|None, str|None]: (созданный список, сообщение об ошибке)
+    """
+    try:
+        user = get_user_by_id(user_id)
+        if not user:
+            return None, "Пользователь не найден"
 
-def get_startup_list(user_id: int) -> Optional[WatchList]:
-    """Получить список для показа при запуске"""
-    return WatchList.get_or_none(
-        (WatchList.user == user_id) &
-        (WatchList.show_on_startup == True)
-    )
+        if check_list_exists(user_id, list_name):
+            return None, f"У вас уже есть список с названием '{list_name}'"
+
+        watchlist = create_watchlist(user, list_name)
+        return watchlist, None
+
+    except DatabaseError as e:
+        return None, f"Ошибка базы данных: {str(e)}"
+    except Exception as e:
+        return None, f"Непредвиденная ошибка: {str(e)}"
 
 
 def get_pairs_count(watchlist: WatchList) -> int:
     """Получить количество пар в списке"""
     return TradingPair.select().where(TradingPair.watchlist == watchlist).count()
+
+
+#def delete_trading_pair(pair_id: int, user_id: int):
+#    """Удалить торговую пару"""
+#    print('Функция delete_trading_pair(), 122')
+#    try:
+#        print('Функция delete_trading_pair(), 124')
+#        pair = get_trading_pair(pair_id, user_id)
+#        if pair:
+#            pair.delete_instance()
+#            print('Функция delete_trading_pair(), 128')
+#        print('Функция delete_trading_pair(), 129')
+#    except Exception as e:
+#        print(f'Ошибка удаления торговой пары pair_id={pair_id}, user_id={user_id}: {e}')
+
+
+def delete_trading_pair(pair_id: int, user_id: int) -> bool:
+    """
+    Удалить торговую пару
+
+    Returns:
+        bool: True если пара успешно удалена, False если пара не найдена
+    """
+    try:
+        pair = (TradingPair
+                .select()
+                .join(WatchList)
+                .where(
+                    (TradingPair.pair_id == pair_id) &
+                    (WatchList.user == user_id)
+                )
+                .get())
+        pair.delete_instance()
+        return True
+    except DoesNotExist:
+        return False
+
+
+def get_pair_symbol(pair_id: int, user_id: int) -> Optional[str]:
+    """
+    Получить символ (тикер) торговой пары по её ID
+
+    Args:
+        pair_id: ID торговой пары
+        user_id: ID пользователя (для проверки прав доступа)
+
+    Returns:
+        Символ пары или None, если пара не найдена или не принадлежит пользователю
+    """
+    pair = (TradingPair
+            .select()
+            .join(WatchList)
+            .where(
+        (TradingPair.pair_id == pair_id) &
+        (WatchList.user == user_id)
+    )
+            .first())
+
+    return pair.symbol if pair else None
+
+
+
 

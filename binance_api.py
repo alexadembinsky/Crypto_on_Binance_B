@@ -38,7 +38,7 @@ class BinanceAPI:
     def get_pairs_with_prices(pairs: List[str]) -> Dict[str, Dict[str, float]]:
         import inspect  # Отладка
         caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        print(f"Я - функция get_pairs_with_prices - была вызвана функцией: {caller_name}")  # Отладка
+        # print(f"Запущена функция get_pairs_with_prices - была вызвана функцией: {caller_name}")  # Отладка
 
         """
         Получение цен и изменений для списка пар одним запросом без параметров
@@ -66,7 +66,8 @@ class BinanceAPI:
     def get_pairs_with_prices_as_text(pairs: List[str]) -> str:
         import inspect  # Отладка
         caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        print(f"Я - функция get_pairs_with_prices_as_text({pairs}) - была вызвана функцией: {caller_name}")  # Отладка
+        # print(f"Запущена функция get_pairs_with_prices_as_text({pairs}) - была вызвана функцией: {caller_name}")
+        # Отладка
 
         """
         Получение цен и изменений для списка пар в виде отформатированного текста с цветовым символом роста/падения

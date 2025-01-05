@@ -89,4 +89,6 @@ def process_add_pair(message: Message):
 
     finally:
         # Сбрасываем состояние
-        bot.delete_state(user_id)
+        # bot.delete_state(user_id)  # Не сбрасываем состояние для того, чтобы обработчик handle_list_complete
+        # мог извлечь ID списка
+        pass

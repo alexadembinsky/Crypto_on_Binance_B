@@ -27,7 +27,7 @@ def process_list_name(message: Message):
         return  # Выходим из функции, состояние сохранится
     try:
         # Создаем список
-        watchlist, error = create_list_with_validation(user_id, list_name)
+        watchlist, error = create_list_with_validation(user_id, list_name)  # @ОБД
 
         if error:  # если произошла ошибка
             if "уже есть список" in error:  # Если список сущ-ет, сообщаем об ошибке и просим ввести другое название

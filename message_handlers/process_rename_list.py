@@ -27,7 +27,7 @@ def process_rename_list(message: Message):
             list_id = data['list_id']
 
         # Получаем список
-        watchlist = get_watchlist(list_id, user_id)
+        watchlist = get_watchlist(list_id, user_id)  # @ОБД
         if not watchlist:
             bot.send_message(user_id, "Список не найден")
             bot.delete_state(user_id)
@@ -36,7 +36,7 @@ def process_rename_list(message: Message):
         old_name = watchlist.name
 
         # Пробуем переименовать список
-        rename_watchlist(watchlist, new_name)
+        rename_watchlist(watchlist, new_name)  # @ОБД
 
         # Если мы дошли до этой строки, значит переименование прошло успешно
         bot.send_message(

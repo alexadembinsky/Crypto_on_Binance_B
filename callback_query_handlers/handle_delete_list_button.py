@@ -4,6 +4,7 @@ from telebot.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardBut
 from bot_instance import bot
 from config import DELETE_LIST_PREFIX, CONFIRM_DELETE_LIST_PREFIX, CANCEL_DELETE_LIST_PREFIX
 from db_operations import get_watchlist
+from keyboards import get_confirm_delete_list_keyboard
 
 
 # Обработчик кнопки "Удалить список"
@@ -21,12 +22,13 @@ def handle_delete_list_button(call: CallbackQuery):
         #)
         watchlist = get_watchlist(list_id, user_id)
 
-        # Создаем клавиатуру с кнопками подтверждения
-        markup = InlineKeyboardMarkup()
-        markup.add(
-            InlineKeyboardButton("ДА", callback_data=f"{CONFIRM_DELETE_LIST_PREFIX}:{list_id}"),
-            InlineKeyboardButton("ОТМЕНА", callback_data=f"{CANCEL_DELETE_LIST_PREFIX}:{list_id}")
-        )
+        # Создаем клавиатуру с кнопками подтверждения @IK
+        #markup = InlineKeyboardMarkup()
+        #markup.add(
+        #    InlineKeyboardButton("ДА", callback_data=f"{CONFIRM_DELETE_LIST_PREFIX}:{list_id}"),
+        #    InlineKeyboardButton("ОТМЕНА", callback_data=f"{CANCEL_DELETE_LIST_PREFIX}:{list_id}")
+        #)
+        markup = get_confirm_delete_list_keyboard(list_id)
 
         # Отправляем сообщение с подтверждением
         bot.edit_message_text(

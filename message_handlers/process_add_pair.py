@@ -1,10 +1,10 @@
 # Обработчик ввода торговой пары при добавлении в список
 
 from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from models import WatchList, TradingPair
 from binance_api import BinanceAPI
 from bot_instance import bot, BotStates
 from db_operations import get_watchlist, check_pair_exists, create_trading_pair
+from keyboards import get_add_more_pair_keyboard
 
 
 # Обработчик ввода торговой пары при добавлении в список
@@ -60,12 +60,15 @@ def process_add_pair(message: Message):
             bot.send_message(user_id, f"Пара {symbol} уже есть в этом списке!")
         else:
             create_trading_pair(watchlist, symbol)
-            # Выводим клавиатуру добавления еще одной пары
-            markup = InlineKeyboardMarkup(row_width=1)
-            markup.add(
-                InlineKeyboardButton("Добавить ещё пару", callback_data=f"add_pair:{list_id}"),
-                InlineKeyboardButton("Завершить редактирование списка", callback_data="list_complete")
-            )
+
+            # Выводим клавиатуру добавления еще одной пары @IK
+            #markup = InlineKeyboardMarkup(row_width=1)
+            #markup.add(
+            #    InlineKeyboardButton("Добавить ещё пару", callback_data=f"add_pair:{list_id}"),
+            #    InlineKeyboardButton("Завершить редактирование списка", callback_data="list_complete")
+            #)
+            markup = get_add_more_pair_keyboard(list_id)
+
             # Если цена нулевая, у нас есть дополнение к сообщению
             if price == 0:
                 msg_about_zero_price = ("\n\nНулевая цена говорит о том, что пара в настоящее время "

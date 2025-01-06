@@ -5,6 +5,7 @@ from binance_api import BinanceAPI
 from other_functions import rus_number_agreement
 from bot_instance import bot, BotStates
 from other_functions import show_pairs_info
+from keyboards import get_show_many_pairs_confirmation_keyboard
 
 
 # Обработчик запроса цены конкретной пары
@@ -35,15 +36,18 @@ def process_price_request(message: Message):
                 data['matched_pairs'] = matched_pairs
 
             if len(matched_pairs) > 20:
-                markup = InlineKeyboardMarkup()
-                markup.add(
-                    InlineKeyboardButton("ДА", callback_data=f"show_pairs:{symbol}"),
-                    InlineKeyboardButton("НЕТ", callback_data="cancel_pairs")
-                )
+                # Создаем клавиатуру: @IK
+                #markup = InlineKeyboardMarkup()
+                #markup.add(
+                #    InlineKeyboardButton("ДА", callback_data=f"show_pairs:{symbol}"),
+                #    InlineKeyboardButton("НЕТ", callback_data="cancel_pairs")
+                #)
+                markup = get_show_many_pairs_confirmation_keyboard(symbol)
 
                 bot.send_message(
                     user_id,
-                    f"{rus_number_agreement('Найдено', len(matched_pairs), 'торговая пара')}. Показать их все?",
+                    f"{rus_number_agreement('Найдено', len(matched_pairs), 'торговая пара')}. "
+                    f"Показать их все?",
                     reply_markup=markup
                 )
             else:

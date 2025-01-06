@@ -1,12 +1,10 @@
 # Обработчик ввода названия списка
 
 from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from models import User, WatchList
-from peewee import IntegrityError
-
 from bot_instance import bot
 from bot_instance import BotStates
 from db_operations import create_list_with_validation
+from keyboards import get_new_list_actions_keyboard
 
 
 # Обработчик ввода названия списка
@@ -35,22 +33,23 @@ def process_list_name(message: Message):
             bot.send_message(user_id, error)
             return
         else:  # если список был благополучно создан
-            # Создаем клавиатуру с кнопками
-            markup = InlineKeyboardMarkup(row_width=2)
-            markup.add(
-                InlineKeyboardButton(
-                    "Добавить пару",
-                    callback_data=f"add_pair:{watchlist.list_id}"
-                ),
-                InlineKeyboardButton(
-                    "Переименовать",
-                    callback_data=f"rename_list:{watchlist.list_id}"
-                ),
-                InlineKeyboardButton(
-                    "Удалить список",
-                    callback_data=f"delete_list:{watchlist.list_id}"
-                )
-            )
+            # Создаем клавиатуру с кнопками @IK
+            #markup = InlineKeyboardMarkup(row_width=2)
+            #markup.add(
+            #    InlineKeyboardButton(
+            #        "Добавить пару",
+            #        callback_data=f"add_pair:{watchlist.list_id}"
+            #    ),
+            #    InlineKeyboardButton(
+            #        "Переименовать",
+            #        callback_data=f"rename_list:{watchlist.list_id}"
+            #    ),
+            #    InlineKeyboardButton(
+            #        "Удалить список",
+            #        callback_data=f"delete_list:{watchlist.list_id}"
+            #    )
+            #)
+            markup = get_new_list_actions_keyboard(watchlist.list_id)
 
             # Отправляем сообщение с кнопками
             bot.send_message(

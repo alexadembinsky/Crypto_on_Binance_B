@@ -14,6 +14,7 @@ from config import (
     THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE
 )
 from db_operations import get_watchlist, get_watchlist_pairs
+from keyboards import get_list_actions_keyboard
 
 
 # Обработчик выбора списка (нажатия на список в перечне списков) - показывает список с кнопками управления
@@ -41,25 +42,28 @@ def handle_list_selection(call: CallbackQuery):
         return
 
     # Создаем клавиатуру с действиями
-    markup = InlineKeyboardMarkup(row_width=2)
-    markup.add(
-        InlineKeyboardButton("Добавить пару", callback_data=f"{ADD_PAIR_TO_LIST_PREFIX}:{list_id}"),
-        InlineKeyboardButton("Удалить пару", callback_data=f"{REMOVE_PAIR_FROM_LIST_PREFIX}:{list_id}"),
-        InlineKeyboardButton("Переименовать", callback_data=f"{RENAME_LIST_PREFIX}:{list_id}"),
-        InlineKeyboardButton("Удалить список", callback_data=f"{DELETE_LIST_PREFIX}:{list_id}")
-    )
+    #markup = InlineKeyboardMarkup(row_width=2)
+    #markup.add(
+    #    InlineKeyboardButton("Добавить пару", callback_data=f"{ADD_PAIR_TO_LIST_PREFIX}:{list_id}"),
+    #    InlineKeyboardButton("Удалить пару", callback_data=f"{REMOVE_PAIR_FROM_LIST_PREFIX}:{list_id}"),
+    #    InlineKeyboardButton("Переименовать", callback_data=f"{RENAME_LIST_PREFIX}:{list_id}"),
+    #    InlineKeyboardButton("Удалить список", callback_data=f"{DELETE_LIST_PREFIX}:{list_id}")
+    #)
+    #
 
     # Добавляем кнопку показа при запуске
-    if watchlist.show_on_startup:
-        markup.add(InlineKeyboardButton(
-            "Не показывать список при запуске",
-            callback_data=f"{REMOVE_STARTUP_PREFIX}:{list_id}"
-        ))
-    else:
-        markup.add(InlineKeyboardButton(
-            "Показывать список при запуске",
-            callback_data=f"{ADD_STARTUP_PREFIX}:{list_id}"
-        ))
+    #if watchlist.show_on_startup:
+    #    markup.add(InlineKeyboardButton(
+    #        "Не показывать список при запуске",
+    #        callback_data=f"{REMOVE_STARTUP_PREFIX}:{list_id}"
+    #    ))
+    #else:
+    #    markup.add(InlineKeyboardButton(
+    #        "Показывать список при запуске",
+    #        callback_data=f"{ADD_STARTUP_PREFIX}:{list_id}"
+    #    ))
+
+    markup = get_list_actions_keyboard(list_id, watchlist.show_on_startup)
 
     if len(pairs) == 0:
         pairs_text = "Список пока пуст."

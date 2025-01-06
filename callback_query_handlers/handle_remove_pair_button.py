@@ -2,10 +2,10 @@
 # для удаления конкретных пар)
 
 from telebot.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from models import WatchList
 from bot_instance import bot
 from config import REMOVE_SOME_PAIR_BUTTON_PREFIX
 from db_operations import get_watchlist, get_pairs_count, get_watchlist_pairs
+from keyboards import get_remove_pairs_keyboard
 
 
 # Обработчик кнопки "Удалить пару"
@@ -36,17 +36,18 @@ def handle_remove_pair_button(call: CallbackQuery):
         )
         return
 
-    # Создаем клавиатуру с парами
-    markup = InlineKeyboardMarkup()
-    for pair in pairs:
-        markup.add(InlineKeyboardButton(
-            pair.symbol,
-            callback_data=f"delete_pair:{list_id}:{pair.pair_id}"
-        ))
-    markup.add(InlineKeyboardButton(
-        "↩️ Назад",
-        callback_data=f"show_list:{list_id}"
-    ))
+    # Создаем клавиатуру с парами @IK
+    #markup = InlineKeyboardMarkup()
+    #for pair in pairs:
+    #    markup.add(InlineKeyboardButton(
+    #        pair.symbol,
+    #        callback_data=f"delete_pair:{list_id}:{pair.pair_id}"
+    #    ))
+    #markup.add(InlineKeyboardButton(
+    #    "↩️ Назад",
+    #    callback_data=f"show_list:{list_id}"
+    #))
+    markup = get_remove_pairs_keyboard(list_id, pairs)
 
     bot.edit_message_text(
         "Выберите пару для удаления:",

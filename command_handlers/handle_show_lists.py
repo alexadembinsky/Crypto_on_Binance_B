@@ -5,6 +5,7 @@ from models import User
 from other_functions import rus_number_agreement
 from bot_instance import bot
 from db_operations import get_user_by_id, get_user_watchlists, get_pairs_count
+from keyboards import get_watchlists_keyboard
 
 
 # Обработчик команды просмотра списков /lists
@@ -32,18 +33,19 @@ def handle_show_lists(message: Message):
         )
         return
 
-    # Создаем клавиатуру со списками
-    markup = InlineKeyboardMarkup()
-    for wlist in watchlists:
-        # Получаем количество пар в списке @ОБД
-        # pairs_count = wlist.pairs.count()
-        pairs_count = get_pairs_count(wlist)  # @ОБД
-        # Добавляем значок глаза для списка, показываемого при запуске
-        eye_icon = " 👁" if wlist.show_on_startup else ""
-        markup.add(InlineKeyboardButton(
-            f"{wlist.name}{eye_icon} ({rus_number_agreement('', pairs_count, 'пара')})",
-            callback_data=f"show_list:{wlist.list_id}"
-        ))
+    # Создаем клавиатуру со списками @IK
+    #markup = InlineKeyboardMarkup()
+    #for wlist in watchlists:
+    #    # Получаем количество пар в списке @ОБД
+    #    # pairs_count = wlist.pairs.count()
+    #    pairs_count = get_pairs_count(wlist)  # @ОБД
+    #    # Добавляем значок глаза для списка, показываемого при запуске
+    #    eye_icon = " 👁" if wlist.show_on_startup else ""
+    #    markup.add(InlineKeyboardButton(
+    #        f"{wlist.name}{eye_icon} ({rus_number_agreement('', pairs_count, 'пара')})",
+    #        callback_data=f"show_list:{wlist.list_id}"
+    #    ))
+    markup = get_watchlists_keyboard(watchlists)
 
     bot.send_message(
         user_id,

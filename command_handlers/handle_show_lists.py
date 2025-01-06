@@ -14,7 +14,7 @@ def handle_show_lists(message: Message):
     user_id = message.from_user.id
     # @ОБД
     #user = User.get_or_none(User.user_id == user_id)
-    user = get_user_by_id(user_id)
+    user = get_user_by_id(user_id)  # @ОБД
 
     if not user:
         bot.reply_to(message, "Сначала нужно выполнить команду /start")
@@ -22,7 +22,7 @@ def handle_show_lists(message: Message):
 
     # Получаем все списки пользователя @ОБД
     #watchlists = user.watchlists
-    watchlists = get_user_watchlists(user)
+    watchlists = get_user_watchlists(user)  # @ОБД
 
     if not watchlists:
         bot.send_message(
@@ -36,8 +36,8 @@ def handle_show_lists(message: Message):
     markup = InlineKeyboardMarkup()
     for wlist in watchlists:
         # Получаем количество пар в списке @ОБД
-        #pairs_count = wlist.pairs.count()
-        pairs_count = get_pairs_count(wlist)
+        # pairs_count = wlist.pairs.count()
+        pairs_count = get_pairs_count(wlist)  # @ОБД
         # Добавляем значок глаза для списка, показываемого при запуске
         eye_icon = " 👁" if wlist.show_on_startup else ""
         markup.add(InlineKeyboardButton(

@@ -40,7 +40,7 @@ def handle_start(message):
             #    watchlist=base_list,
             #    symbol=symbol
             #)
-            create_trading_pair(base_list, symbol)
+            create_trading_pair(base_list, symbol)  # @ОБД
 
         welcome_text = (
             f"Привет, {first_name}! 👋\n\n"
@@ -61,7 +61,7 @@ def handle_start(message):
     #    (WatchList.user == user_id) &
     #    (WatchList.show_on_startup == True)
     #)
-    startup_list = get_startup_list(user_id)
+    startup_list = get_startup_list(user_id)  # @ОБД
 
     if startup_list:
         # Формируем текст со списком пар

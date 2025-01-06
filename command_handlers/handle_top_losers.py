@@ -21,14 +21,7 @@ def handle_top_losers(message: Message):
             change = float(pair['priceChangePercent'])
 
             # Форматируем цену в зависимости от её величины
-            if price < 0.01:
-                price_fmt = f"{price:.8f}"
-            elif price < 1:
-                price_fmt = f"{price:.6f}"
-            elif price < 100:
-                price_fmt = f"{price:.4f}"
-            else:
-                price_fmt = f"{price:.2f}"
+            price_fmt = BinanceAPI.format_price(price)
 
             response += f"{FALLING} {symbol}: {price_fmt} ({change:.1f}%)\n"
 

@@ -12,13 +12,15 @@
 # create_watchlist - Создать новый список
 # get_watchlist_pairs - Получить все пары из списка
 # set_startup_list - Установить список для показа при запуске
+
 # delete_watchlist - Удалить список
 # rename_watchlist - Переименовать список
 # get_startup_list - Получить список для показа при запуске
 # check_list_exists - Проверить существование списка с таким именем у пользователя
 # create_list_with_validation - Создать новый список с проверками
 # get_pairs_count - Получить количество пар в списке
-#
+# disable_startup_list - Отключить показ списка при запуске
+
 # About trading pair:
 # get_trading_pair - Получить торговую пару по ID с проверкой принадлежности пользователю
 # create_trading_pair - Создать новую торговую пару
@@ -98,6 +100,26 @@ def set_startup_list(user_id: int, list_id: int) -> None:
     if watchlist:
         watchlist.show_on_startup = True
         watchlist.save()
+
+
+def disable_startup_list(list_id: int, user_id: int) -> Tuple[bool, str]:
+    """
+    Отключить показ списка при запуске
+
+    Returns:
+        Tuple[bool, str]: (успех операции, сообщение об успехе/ошибке)
+    """
+    try:
+        watchlist = get_watchlist(list_id, user_id)
+        if not watchlist:
+            return False, "Список не найден"
+
+        watchlist.show_on_startup = False
+        watchlist.save()
+        return True, f"Показ списка '{watchlist.name}' при запуске отменен"
+
+    except Exception as e:
+        return False, f"Ошибка при отмене показа списка: {str(e)}"
 
 
 def delete_watchlist(list_id: int, user_id: int) -> bool:

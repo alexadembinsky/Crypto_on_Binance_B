@@ -35,3 +35,4 @@ def handle_list_complete(call: CallbackQuery):
         bot.answer_callback_query(call.id)
     else:
         bot.answer_callback_query(call.id, "Список не найден")
+

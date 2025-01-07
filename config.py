@@ -89,4 +89,7 @@ NUMERICAL_CONTEXT = {
 # с последующей фильтрацией нужный пар
 THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE = 3
 
+# Вывод отладочных сообщений о вызове функций
+TRACING_ENABLED = False
+
 

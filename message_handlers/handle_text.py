@@ -3,12 +3,14 @@
 from telebot.types import Message
 from other_functions import is_valid_ticker_request, process_price_request_direct
 from bot_instance import bot, BotStates
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик текстовых сообщений как запросов тикера
 @bot.message_handler(func=lambda message: True)
 def handle_text(message: Message):
     """Обработчик текстовых сообщений как запросов тикера"""
+    trace_function_call()
     # print('Запущен обработчик "просто" текстовых сообщений handle_text') # Отладка
     # Проверяем, не находится ли пользователь в каком-либо состоянии
     if bot.get_state(message.from_user.id):

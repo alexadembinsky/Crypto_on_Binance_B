@@ -8,7 +8,7 @@ from other_functions.trace_function_call import trace_function_call
 
 # Функция возвращает построчную информацию о торговых парах:
 # символ роста или падения, тикер, цену, изменение цены за последние 24 часа
-def get_pairs_info(pairs: List) -> str:
+def get_pairs_info(pairs: List, pair_is_object=True) -> str:
     """
     Возвращение в текстовом виде информации о запрошенных торговых парах:
     В каждой строке: символ роста или падения, тикер, цена, изменение цены за последние 24 часа
@@ -23,19 +23,21 @@ def get_pairs_info(pairs: List) -> str:
         # Получаем пары из списка и их текущие цены
         pairs_text = ""
         for pair in pairs:
+            symbol = pair.symbol if pair_is_object else pair
             try:
                 # Получаем форматированную цену и изменение
-                r_o_f, price_info = BinanceAPI.format_price_change(pair.symbol)
-                pairs_text += f"{r_o_f} {pair.symbol}: {price_info}\n"
+                r_o_f, price_info = BinanceAPI.format_price_change(symbol)
+                pairs_text += f"{r_o_f} {symbol}: {price_info}\n"
             except:
-                pairs_text += f"{pair.symbol}: Ошибка получения данных\n"
+                pairs_text += f"{symbol}: Ошибка получения данных\n"
     # если в списке более порогового количество пар, делаем запрос без параметра, и отбираем из массива
     # полученной информации только нужные нам пары:
     else:
         # получаем список тикетов ("символов") пар:
         list_of_pairs = []
         for pair in pairs:
-            list_of_pairs.append(pair.symbol)  # добавляем очередной тикет ("символ")
+            symbol = pair.symbol if pair_is_object else pair
+            list_of_pairs.append(symbol)  # добавляем очередной тикет ("символ")
 
         #  Получаем форматированный текст с символами изменения, тикерами пар, ценой и величиной изменения:
         pairs_text = ''

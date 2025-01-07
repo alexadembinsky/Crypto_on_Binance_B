@@ -11,7 +11,7 @@ from other_functions.trace_function_call import trace_function_call
 def show_pairs_info(user_id: int, pairs: List[str]):
     """Вывод информации о торговых парах"""
     trace_function_call()
-    print('SHOW_PAIRS_INFO - Вывод информации о парах', pairs)  # Отладка
+    # print('SHOW_PAIRS_INFO - Вывод информации о парах', pairs)  # Отладка
     try:
         # print("Getting prices for pairs:", pairs)  # Отладка
         # pairs_prices = BinanceAPI.get_pairs_with_prices(pairs)  # Отладка
@@ -39,7 +39,6 @@ def show_pairs_info(user_id: int, pairs: List[str]):
             message_id=loading_message.message_id
         )
 
-        print('40')
         # Отправляем основной ответ
         bot.send_message(user_id, response)
 

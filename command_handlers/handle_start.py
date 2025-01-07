@@ -85,3 +85,4 @@ def handle_start(message):
 
     if pairs_text:
         bot.send_message(user_id, pairs_text)
+

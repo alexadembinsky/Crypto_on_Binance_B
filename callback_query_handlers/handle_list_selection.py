@@ -79,4 +79,3 @@ def handle_list_selection(call: CallbackQuery):
     )
     bot.answer_callback_query(call.id)
 
-

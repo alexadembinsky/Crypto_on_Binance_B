@@ -4,12 +4,14 @@ from telebot.types import Message
 from config import RISING
 from binance_api import BinanceAPI
 from bot_instance import bot
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик команды получения лидеров роста
 @bot.message_handler(commands=['top_gainers'])
 def handle_top_gainers(message: Message):
     """Обработчик команды получения лидеров роста"""
+    trace_function_call()
     try:
         # Получаем топ-10 растущих пар
         gainers = BinanceAPI.get_top_movers(limit=10, ascending=False)

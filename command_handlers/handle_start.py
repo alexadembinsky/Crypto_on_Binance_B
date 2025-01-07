@@ -4,13 +4,18 @@ from models import User, WatchList, TradingPair
 from peewee import IntegrityError
 from binance_api import BinanceAPI
 from bot_instance import bot
-from db_operations import create_user, create_watchlist, create_trading_pair, get_startup_list, get_watchlist_pairs
+from db_operations import (create_user, create_watchlist, create_trading_pair,
+                           get_startup_list, get_watchlist_pairs, get_pairs_count)
+from config import THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE
+from other_functions.get_pairs_info import get_pairs_info
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик команды /start
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     """Обработчик команды /start"""
+    trace_function_call()
     user_id = message.from_user.id
     username = message.from_user.username
     first_name = message.from_user.first_name
@@ -62,16 +67,21 @@ def handle_start(message):
     #    (WatchList.show_on_startup == True)
     #)
     startup_list = get_startup_list(user_id)  # @ОБД
+    #startup_list_size = get_pairs_count(startup_list)
+    #if startup_list:
+    #    pairs_text = ""
+    #    if startup_list_size <= THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE:
+    #        # Формируем текст со списком пар
+    #        for pair in get_watchlist_pairs(startup_list):
+    #            try:
+    #                r_o_f, price_info = BinanceAPI.format_price_change(pair.symbol)
+    #                pairs_text = f"{pairs_text}{r_o_f} {pair.symbol}: {price_info}\n"
+    #            except Exception:
+    #                pairs_text = f"{pairs_text}{pair.symbol}: Ошибка получения данных\n"
+    #    else:
+    #        pass
+    pairs = get_watchlist_pairs(startup_list)  # @ОБД
+    pairs_text = get_pairs_info(pairs)  # @API req
 
-    if startup_list:
-        # Формируем текст со списком пар
-        pairs_text = ""
-        for pair in get_watchlist_pairs(startup_list):
-            try:
-                r_o_f, price_info = BinanceAPI.format_price_change(pair.symbol)
-                pairs_text = f"{pairs_text}{r_o_f} {pair.symbol}: {price_info}\n"
-            except Exception:
-                pairs_text = f"{pairs_text}{pair.symbol}: Ошибка получения данных\n"
-
-        if pairs_text:
-            bot.send_message(user_id, pairs_text)
+    if pairs_text:
+        bot.send_message(user_id, pairs_text)

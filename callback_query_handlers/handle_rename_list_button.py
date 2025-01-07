@@ -3,12 +3,14 @@
 from telebot.types import CallbackQuery
 from bot_instance import bot, BotStates
 from config import RENAME_LIST_PREFIX
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик кнопки "Переименовать список"
 @bot.callback_query_handler(func=lambda call: call.data.startswith(f'{RENAME_LIST_PREFIX}:'))
 def handle_rename_list_button(call: CallbackQuery):
     """Обработчик кнопки 'Переименовать список'"""
+    trace_function_call()
     user_id = call.from_user.id
     list_id = int(call.data.split(':')[1])
 

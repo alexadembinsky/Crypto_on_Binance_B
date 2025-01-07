@@ -7,12 +7,14 @@ from bot_instance import bot, BotStates
 import callback_query_handlers
 from config import DELETE_THE_PAIR_PREFIX
 from db_operations import get_pair_symbol, delete_trading_pair
+from other_functions.trace_function_call import trace_function_call
 
 
 # обработчик выбора пары для удаления
 @bot.callback_query_handler(func=lambda call: call.data.startswith(f'{DELETE_THE_PAIR_PREFIX}:'))
 def handle_delete_pair(call: CallbackQuery):
     """Обработчик выбора пары для удаления"""
+    trace_function_call()
     user_id = call.from_user.id
 
     parts = call.data.split(':')

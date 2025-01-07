@@ -5,12 +5,14 @@ from bot_instance import bot
 from config import DELETE_LIST_PREFIX, CONFIRM_DELETE_LIST_PREFIX, CANCEL_DELETE_LIST_PREFIX
 from db_operations import get_watchlist
 from keyboards import get_confirm_delete_list_keyboard
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик кнопки "Удалить список"
 @bot.callback_query_handler(func=lambda call: call.data.startswith(f'{DELETE_LIST_PREFIX}:'))
 def handle_delete_list_button(call: CallbackQuery):
     """Обработчик кнопки 'Удалить список'"""
+    trace_function_call()
     user_id = call.from_user.id
     list_id = int(call.data.split(':')[1])
 

@@ -5,12 +5,14 @@ from bot_instance import bot
 import callback_query_handlers
 from config import LIST_COMPLETE
 from db_operations import get_watchlist
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик завершения добавления пар в список / кнопки "Завершить редактирование списка"
 @bot.callback_query_handler(func=lambda call: call.data == f"{LIST_COMPLETE}")
 def handle_list_complete(call: CallbackQuery):
     """Обработчик завершения добавления пар в список / кнопки "Завершить редактирование списка" """
+    trace_function_call()
 
     user_id = call.from_user.id
 

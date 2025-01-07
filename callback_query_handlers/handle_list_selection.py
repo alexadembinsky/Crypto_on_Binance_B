@@ -15,12 +15,15 @@ from config import (
 )
 from db_operations import get_watchlist, get_watchlist_pairs
 from keyboards import get_list_actions_keyboard
+from other_functions.get_pairs_info import get_pairs_info
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик выбора списка (нажатия на список в перечне списков) - показывает список с кнопками управления
 @bot.callback_query_handler(func=lambda call: call.data.startswith('show_list:'))
 def handle_list_selection(call: CallbackQuery):
     """Обработчик выбора списка (нажатия на список в перечне списков) - показывает список с кнопками управления"""
+    trace_function_call()
     user_id = call.from_user.id
     list_id = int(call.data.split(':')[1])
 
@@ -65,33 +68,8 @@ def handle_list_selection(call: CallbackQuery):
 
     markup = get_list_actions_keyboard(list_id, watchlist.show_on_startup)
 
-    if len(pairs) == 0:
-        pairs_text = "Список пока пуст."
-    # если в списке пороговое количество пар или менее, будем получать информацию, запрашивая ее по очереди
-    # для каждой пары (сколько пар в списке - столько запросов)
-    elif len(pairs) <= THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE:
-        # Получаем пары из списка и их текущие цены
-        pairs_text = ""
-        for pair in pairs:
-            try:
-                # Получаем форматированную цену и изменение
-                r_o_f, price_info = BinanceAPI.format_price_change(pair.symbol)
-                pairs_text += f"{r_o_f} {pair.symbol}: {price_info}\n"
-            except:
-                pairs_text += f"{pair.symbol}: Ошибка получения данных\n"
-    # если в списке более порогового количество пар, делаем запрос без параметра, и отбираем из массива
-    # полученной информации только нужные нам пары:
-    else:
-        # получаем список тикетов ("символов") пар:
-        list_of_pairs = []
-        for pair in pairs:
-            list_of_pairs.append(pair.symbol)  # добавляем очередной тикет ("символ")
-        #  Получаем форматированный текст с символами изменения, тикерами пар, ценой и величиной изменения
-        pairs_text = ''
-        try:
-            pairs_text = BinanceAPI.get_pairs_with_prices_as_text(list_of_pairs)
-        except:
-            pairs_text += f"Ошибка получения данных для списка пар: {list_of_pairs}\n"
+    # Получаем информацию о торговых парах:
+    pairs_text = get_pairs_info(pairs)
 
     bot.edit_message_text(
         f"Список: {watchlist.name}\n\n{pairs_text}",

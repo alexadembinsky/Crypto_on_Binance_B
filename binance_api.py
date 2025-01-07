@@ -2,6 +2,7 @@ import requests
 from typing import Dict, List, Optional, Tuple
 import re
 from config import BINANCE_API_URL, RISING, FALLING, UNCHANGED
+from other_functions.trace_function_call import trace_function_call
 
 
 class BinanceAPI:
@@ -14,7 +15,11 @@ class BinanceAPI:
         :param symbol: Торговая пара (например, 'BTCUSDT')
         :return: Словарь с данными
         """
-        # print(f'Запущен BinanceAPI.get_ticker_24h({symbol})')  # Отладка
+        trace_function_call()
+        #import inspect  # Отладка
+        #caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
+        #current_function_name = inspect.currentframe().f_code.co_name # Отладка
+        #print(f"Запущен метод {__name__}({symbol}) - был вызван функцией: {caller_name}")  # Отладка
         endpoint = f"{BINANCE_API_URL}/ticker/24hr"
         params = {'symbol': symbol} if symbol else {}
 
@@ -25,6 +30,7 @@ class BinanceAPI:
     @staticmethod
     def format_price(price: float) -> str:
         """Форматирование цены в зависимости от величины"""
+        trace_function_call()
         if price < 0.01:
             return f"{price:.8f}"
         elif price < 1:
@@ -36,9 +42,10 @@ class BinanceAPI:
 
     @staticmethod
     def get_pairs_with_prices(pairs: List[str]) -> Dict[str, Dict[str, float]]:
-        import inspect  # Отладка
-        caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        # print(f"Запущена функция get_pairs_with_prices - была вызвана функцией: {caller_name}")  # Отладка
+        trace_function_call()
+        #import inspect  # Отладка
+        #caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
+        #print(f"Запущена функция get_pairs_with_prices - была вызвана функцией: {caller_name}")  # Отладка
 
         """
         Получение цен и изменений для списка пар одним запросом без параметров
@@ -64,9 +71,10 @@ class BinanceAPI:
 
     @staticmethod
     def get_pairs_with_prices_as_text(pairs: List[str]) -> str:
-        import inspect  # Отладка
-        caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        # print(f"Запущена функция get_pairs_with_prices_as_text({pairs}) - была вызвана функцией: {caller_name}")
+        trace_function_call()
+        #import inspect  # Отладка
+        #caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
+        #print(f"Запущена функция get_pairs_with_prices_as_text({pairs}) - была вызвана функцией: {caller_name}")
         # Отладка
 
         """
@@ -106,14 +114,15 @@ class BinanceAPI:
 
     @staticmethod
     def format_price_change(symbol: str) -> Tuple[bool, str]:
-        # import inspect  # Отладка
-        # caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        # print(f"Я - функция format_price_change - была вызвана функцией: {caller_name}")  # Отладка
         """
         Форматирование цены и изменения для пары
         :param symbol: Торговая пара (например, 'BTCUSDT')
         :return: Отформатированная строка с ценой и изменением
         """
+        trace_function_call()
+        # import inspect  # Отладка
+        # caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
+        # print(f"Функция format_price_change - была вызвана функцией: {caller_name}")  # Отладка
 
         try:
             data = BinanceAPI.get_ticker_24h(symbol)
@@ -151,6 +160,7 @@ class BinanceAPI:
         :param pattern: Шаблон поиска (например, 'BTC*', 'BTCUSD?')
         :return: Список найденных пар (исключая пары с нулевой ценой)
         """
+        trace_function_call()
         data = BinanceAPI.get_ticker_24h()
         regex_pattern = pattern.replace("*", ".*").replace("?", ".")
         regex = re.compile(f"^{regex_pattern}$")
@@ -168,6 +178,7 @@ class BinanceAPI:
         :param ascending: True для получения падающих пар, False для растущих
         :return: Список словарей с данными
         """
+        trace_function_call()
         data = BinanceAPI.get_ticker_24h()
         sorted_data = sorted(
             data,
@@ -183,6 +194,7 @@ class BinanceAPI:
         :param symbol: Торговая пара (например, 'BTCUSDT')
         :return: Кортеж (существует ли пара, цена пары)
         """
+        trace_function_call()
         try:
             data = BinanceAPI.get_ticker_24h(symbol)
             price = float(data['lastPrice'])

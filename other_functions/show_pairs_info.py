@@ -3,12 +3,15 @@
 from binance_api import BinanceAPI
 from typing import List
 from bot_instance import bot
+from other_functions.get_pairs_info import get_pairs_info
+from other_functions.trace_function_call import trace_function_call
 
 
 # вывод информации о торговых парах
 def show_pairs_info(user_id: int, pairs: List[str]):
     """Вывод информации о торговых парах"""
-    # print('Запущена функция show_pairs_info - Вывод информации о парах', pairs)  # Отладка
+    trace_function_call()
+    print('SHOW_PAIRS_INFO - Вывод информации о парах', pairs)  # Отладка
     try:
         # print("Getting prices for pairs:", pairs)  # Отладка
         # pairs_prices = BinanceAPI.get_pairs_with_prices(pairs)  # Отладка
@@ -28,6 +31,7 @@ def show_pairs_info(user_id: int, pairs: List[str]):
                 response += f"{r_o_f} {pair}: {price_info}\n"
             except Exception:
                 continue
+        #response = f'{response}{get_pairs_info(pairs)}'  # получаем форматированную информацию о парах
 
         # Удаляем сообщение о загрузке
         bot.delete_message(
@@ -35,6 +39,7 @@ def show_pairs_info(user_id: int, pairs: List[str]):
             message_id=loading_message.message_id
         )
 
+        print('40')
         # Отправляем основной ответ
         bot.send_message(user_id, response)
 

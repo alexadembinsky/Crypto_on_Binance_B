@@ -4,6 +4,7 @@ from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from binance_api import BinanceAPI
 from other_functions import rus_number_agreement, show_pairs_info
 from bot_instance import bot, BotStates
+from other_functions.trace_function_call import trace_function_call
 
 
 # обработка запроса цены (без установки состояния) при вводе в строку сообщения
@@ -12,6 +13,7 @@ def process_price_request_direct(message: Message, symbol: str):
     Прямая обработка запроса цены (без установки состояния) при вводе в строку сообщения
     Копирует логику из process_price_request, но без работы с состояниями
     """
+    trace_function_call()
     user_id = message.from_user.id
     matched_pairs = []
 

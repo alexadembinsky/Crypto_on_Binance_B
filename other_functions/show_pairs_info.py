@@ -25,13 +25,13 @@ def show_pairs_info(user_id: int, pairs: List[str]):
 
         # Формируем ответ
         response = "Найденные пары:\n\n"
-        for pair in pairs:
-            try:
-                r_o_f, price_info = BinanceAPI.format_price_change(pair)
-                response += f"{r_o_f} {pair}: {price_info}\n"
-            except Exception:
-                continue
-        #response = f'{response}{get_pairs_info(pairs)}'  # получаем форматированную информацию о парах
+        #for pair in pairs:
+        #    try:
+        #        r_o_f, price_info = BinanceAPI.format_price_change(pair)
+        #        response += f"{r_o_f} {pair}: {price_info}\n"
+        #    except Exception:
+        #        continue
+        response = f'{response}{get_pairs_info(pairs, False)}'  # получаем форматированную информацию о парах
 
         # Удаляем сообщение о загрузке
         bot.delete_message(

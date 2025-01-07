@@ -4,12 +4,14 @@ from telebot.types import Message
 from models import WatchList
 from bot_instance import bot, BotStates
 from db_operations import get_watchlist, rename_watchlist
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик ввода нового названия списка
 @bot.message_handler(state=BotStates.renaming_list)
 def process_rename_list(message: Message):
     """Обработчик ввода нового названия списка"""
+    trace_function_call()
     user_id = message.from_user.id
     new_name = message.text.strip()
 

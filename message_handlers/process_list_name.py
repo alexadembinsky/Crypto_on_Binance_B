@@ -5,12 +5,14 @@ from bot_instance import bot
 from bot_instance import BotStates
 from db_operations import create_list_with_validation
 from keyboards import get_new_list_actions_keyboard
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик ввода названия списка
 @bot.message_handler(state=BotStates.creating_list)
 def process_list_name(message: Message):
     """Обработчик ввода названия списка"""
+    trace_function_call()
     user_id = message.from_user.id
     list_name = message.text.strip()
 

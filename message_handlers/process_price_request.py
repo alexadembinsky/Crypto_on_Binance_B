@@ -6,12 +6,14 @@ from other_functions import rus_number_agreement
 from bot_instance import bot, BotStates
 from other_functions import show_pairs_info
 from keyboards import get_show_many_pairs_confirmation_keyboard
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик запроса цены конкретной пары
 @bot.message_handler(state=BotStates.waiting_for_symbol)
 def process_price_request(message: Message):
     """Обработчик запроса цены конкретной пары"""
+    trace_function_call()
     # print('Запущена функция process_price_request - Обработчик запроса цены конкретной пары')  # Отладка
     user_id = message.from_user.id
     symbol = message.text.strip().upper()
@@ -22,7 +24,7 @@ def process_price_request(message: Message):
         if '*' in symbol or '?' in symbol:
             # print(f"Processing wildcard pattern: {symbol}")  # Отладка
             matched_pairs = BinanceAPI.find_pairs_by_pattern(symbol)
-            # print(f"Found pairs: {matched_pairs}")  # Отладка
+            print(f"PROCESS PRICE REQUEST 27 Found pairs: {matched_pairs}")  # Отладка
 
             if not matched_pairs:
                 bot.send_message(

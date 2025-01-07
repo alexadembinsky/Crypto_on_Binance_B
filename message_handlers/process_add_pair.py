@@ -5,12 +5,14 @@ from binance_api import BinanceAPI
 from bot_instance import bot, BotStates
 from db_operations import get_watchlist, check_pair_exists, create_trading_pair
 from keyboards import get_add_more_pair_keyboard
+from other_functions.trace_function_call import trace_function_call
 
 
 # Обработчик ввода торговой пары при добавлении в список
 @bot.message_handler(state=BotStates.adding_pair)
 def process_add_pair(message: Message):
     """Обработчик ввода торговой пары при добавлении в список"""
+    trace_function_call()
     user_id = message.from_user.id
     symbol = message.text.strip().upper()
 

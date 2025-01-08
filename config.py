@@ -10,6 +10,9 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 # Настройки базы данных
 DB_PATH = "database.db"
 
+# Какое количество пар - лидеров роста и падения выводить
+NUMBER_OF_MOVERS = 10
+
 # Базовые команды бота
 DEFAULT_COMMANDS = (
     ('start', 'Запустить бота'),
@@ -17,8 +20,8 @@ DEFAULT_COMMANDS = (
     ('price', 'Узнать цену пары'),
     ('lists', 'Показать мои списки пар'),
     ('newlist', 'Создать новый список'),
-    ('top_gainers', 'Топ-10 растущих пар'),
-    ('top_losers', 'Топ-10 падающих пар'),
+    ('top_gainers', f'Топ-{NUMBER_OF_MOVERS} растущих пар'),
+    ('top_losers', f'Топ-{NUMBER_OF_MOVERS} падающих пар'),
 )
 
 
@@ -89,7 +92,8 @@ NUMERICAL_CONTEXT = {
 # с последующей фильтрацией нужный пар
 THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE = 3
 
+
 # Вывод отладочных сообщений о вызове функций
-TRACING_ENABLED = False
+TRACING_ENABLED = True
 
 

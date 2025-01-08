@@ -92,8 +92,11 @@ NUMERICAL_CONTEXT = {
 # с последующей фильтрацией нужный пар
 THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE = 3
 
+# Наибольшее количество найденных торговых пар при запросе с символами подстановки, которое будет отображаться без
+# запроса подтверждения пользователем
+AUTO_DISPLAY_PAIRS_LIMIT = 25
 
 # Вывод отладочных сообщений о вызове функций
-TRACING_ENABLED = True
+TRACING_ENABLED = False
 
 

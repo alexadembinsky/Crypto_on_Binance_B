@@ -1,12 +1,13 @@
 # Обработчик запроса цены конкретной пары
 
-from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import Message
 from binance_api import BinanceAPI
 from other_functions import rus_number_agreement
 from bot_instance import bot, BotStates
 from other_functions import show_pairs_info
 from keyboards import get_show_many_pairs_confirmation_keyboard
 from other_functions.trace_function_call import trace_function_call
+from config import AUTO_DISPLAY_PAIRS_LIMIT
 
 
 # Обработчик запроса цены конкретной пары
@@ -24,7 +25,7 @@ def process_price_request(message: Message):
         if '*' in symbol or '?' in symbol:
             # print(f"Processing wildcard pattern: {symbol}")  # Отладка
             matched_pairs = BinanceAPI.find_pairs_by_pattern(symbol)
-            print(f"PROCESS PRICE REQUEST 27 Found pairs: {matched_pairs}")  # Отладка
+            # print(f"PROCESS PRICE REQUEST 27 Found pairs: {matched_pairs}")  # Отладка
 
             if not matched_pairs:
                 bot.send_message(
@@ -37,14 +38,9 @@ def process_price_request(message: Message):
             with bot.retrieve_data(user_id) as data:
                 data['matched_pairs'] = matched_pairs
 
-            if len(matched_pairs) > 20:
-                # Создаем клавиатуру: @IK
-                #markup = InlineKeyboardMarkup()
-                #markup.add(
-                #    InlineKeyboardButton("ДА", callback_data=f"show_pairs:{symbol}"),
-                #    InlineKeyboardButton("НЕТ", callback_data="cancel_pairs")
-                #)
-                markup = get_show_many_pairs_confirmation_keyboard(symbol)
+            if len(matched_pairs) > AUTO_DISPLAY_PAIRS_LIMIT:  # Если пар найдено больше порогового
+                # значения, сообщаем об этом пользователю и запрашиваем подтверждение
+                markup = get_show_many_pairs_confirmation_keyboard(symbol)  # @IK
 
                 bot.send_message(
                     user_id,

@@ -72,10 +72,11 @@ def handle_list_selection(call: CallbackQuery):
     pairs_text = get_pairs_info(pairs)
 
     bot.edit_message_text(
-        f"Список: {watchlist.name}\n\n{pairs_text}",
+        f"<b>{watchlist.name}</b>\n{pairs_text}",
         user_id,
         call.message.message_id,
         reply_markup=markup,
+        parse_mode='HTML'
     )
     bot.answer_callback_query(call.id)
 

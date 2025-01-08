@@ -81,8 +81,9 @@ def handle_start(message):
     #    else:
     #        pass
     pairs = get_watchlist_pairs(startup_list)  # @ОБД
-    pairs_text = get_pairs_info(pairs)  # @API req
+    if len(pairs) > 0:
+        pairs_text = get_pairs_info(pairs)  # @API req
 
-    if pairs_text:
-        bot.send_message(user_id, pairs_text)
+        if pairs_text:
+            bot.send_message(user_id, pairs_text)
 

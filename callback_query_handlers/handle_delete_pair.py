@@ -42,7 +42,6 @@ def handle_delete_pair(call: CallbackQuery):
         symbol = get_pair_symbol(pair_id, user_id)  # получаем символ (тикер) торговой пары
         if symbol is None:
             symbol = "не получили символ"
-        print('Получили символ торговой пары:', symbol)
 
         #bot.answer_callback_query(
         #    call.id,

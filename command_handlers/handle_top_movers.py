@@ -44,6 +44,6 @@ def handle_top_movers(message: Message):
     except Exception as e:
         bot.reply_to(
             message,
-            f"Ошибка при получении данных о {'растущих' if is_gainers else "падающих"} парах."
+            f"Не удалось получить данные о {'растущих' if is_gainers else "падающих"} парах."
         )
-
+        print(f'Ошибка получения данных по API: {str(e)}')

@@ -12,7 +12,6 @@ from other_functions.trace_function_call import trace_function_call
 def handle_show_pairs(call: CallbackQuery):
     """Обработчик кнопки 'ДА' для показа всех найденных пар"""
     trace_function_call()
-    # print('Запущена функция handle_show_pairs - обработчик кнопки "ДА" для показа всех найденных пар') # Отладка
     user_id = call.from_user.id
 
     # Сразу отвечаем на callback query

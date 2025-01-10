@@ -16,12 +16,30 @@ def handle_remove_startup(call: CallbackQuery):
     user_id = call.from_user.id
     list_id = int(call.data.split(':')[1])
 
-    success, message = disable_startup_list(list_id, user_id)  # Обращаемся к БД @ОБД
+    success, message = disable_startup_list(list_id, user_id)  # Отменяем показ списка при запуске @ОБД
 
-    bot.answer_callback_query(call.id, message)
+    if success:  # Если получен ответ от БД:
+        if message:  # Если получен список
+            # Выводим сообщение:
+            bot.answer_callback_query(
+                call.id,
+                f'Список не будет выводиться при запуске бота'  # @ОБД
+            )
+            # Обновляем отображение списка
+            new_call = call
+            new_call.data = f"show_list:{list_id}"
+            callback_query_handlers.handle_list_selection(new_call)
 
-    if success:
-        # Обновляем отображение списка
-        new_call = call
-        new_call.data = f"show_list:{list_id}"
-        callback_query_handlers.handle_list_selection(new_call)
+        else:
+            print(f'Ошибка: не удалось получить список')
+            bot.answer_callback_query(
+                call.id,
+                f"Ошибка: не удалось получить список."  # @ОБД
+            )
+
+    else:
+        print(f'Ошибка соединения с базой данных. Не удалось отменить показ списка при запуске: {message}')
+        bot.answer_callback_query(
+            call.id,
+            f"Ошибка соединения с БД. Не удалось отменить показ списка при запуске."  # @ОБД
+        )

@@ -1,8 +1,8 @@
 # Обработчик кнопки "Удалить список"
 
-from telebot.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import CallbackQuery
 from bot_instance import bot
-from config import DELETE_LIST_PREFIX, CONFIRM_DELETE_LIST_PREFIX, CANCEL_DELETE_LIST_PREFIX
+from config import DELETE_LIST_PREFIX
 from db_operations import get_watchlist
 from keyboards import get_confirm_delete_list_keyboard
 from other_functions.trace_function_call import trace_function_call
@@ -17,20 +17,11 @@ def handle_delete_list_button(call: CallbackQuery):
     list_id = int(call.data.split(':')[1])
 
     try:
-        # Получаем список @ОБД
-        #watchlist = WatchList.get(
-        #    (WatchList.list_id == list_id) &
-        #    (WatchList.user == user_id)
-        #)
-        watchlist = get_watchlist(list_id, user_id)
+        # Получаем список
+        watchlist = get_watchlist(list_id, user_id)  # @ОБД
 
-        # Создаем клавиатуру с кнопками подтверждения @IK
-        #markup = InlineKeyboardMarkup()
-        #markup.add(
-        #    InlineKeyboardButton("ДА", callback_data=f"{CONFIRM_DELETE_LIST_PREFIX}:{list_id}"),
-        #    InlineKeyboardButton("ОТМЕНА", callback_data=f"{CANCEL_DELETE_LIST_PREFIX}:{list_id}")
-        #)
-        markup = get_confirm_delete_list_keyboard(list_id)
+        # Создаем клавиатуру с кнопками подтверждения
+        markup = get_confirm_delete_list_keyboard(list_id)  # @IK
 
         # Отправляем сообщение с подтверждением
         bot.edit_message_text(
@@ -43,7 +34,7 @@ def handle_delete_list_button(call: CallbackQuery):
         bot.answer_callback_query(call.id)
 
     except Exception as e:
-        # print(f"Error in handle_delete_list_button: {str(e)}")  # Отладка
+        print(f"Ошибка при выборе опции удаления списка: {str(e)}")  # error message
         bot.answer_callback_query(
             call.id,
             "Ошибка при подготовке удаления списка!"

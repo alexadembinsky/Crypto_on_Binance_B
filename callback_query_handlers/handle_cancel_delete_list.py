@@ -22,7 +22,7 @@ def handle_cancel_delete_list(call: CallbackQuery):
         bot.answer_callback_query(call.id)
 
     except Exception as e:
-        # print(f"Error in handle_cancel_delete_list: {str(e)}") # Отладка
+        print(f"Ошибка при отмене удаления списка: {str(e)}")  # error message
         bot.answer_callback_query(
             call.id,
             "Ошибка при отмене удаления!"

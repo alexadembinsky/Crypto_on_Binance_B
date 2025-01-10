@@ -1,18 +1,7 @@
 # Обработчик выбора списка (нажатия на список в перечне списков) - показывает список с кнопками управления
 
-from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from models import WatchList
-from binance_api import BinanceAPI
+from telebot.types import CallbackQuery
 from bot_instance import bot
-from config import (
-    ADD_PAIR_TO_LIST_PREFIX,
-    REMOVE_PAIR_FROM_LIST_PREFIX,
-    RENAME_LIST_PREFIX,
-    DELETE_LIST_PREFIX,
-    REMOVE_STARTUP_PREFIX,
-    ADD_STARTUP_PREFIX,
-    THRESHOLD_OF_LIST_LENGTH_FOR_QUERY_MODE
-)
 from db_operations import get_watchlist, get_watchlist_pairs
 from keyboards import get_list_actions_keyboard
 from other_functions.get_pairs_info import get_pairs_info
@@ -27,56 +16,39 @@ def handle_list_selection(call: CallbackQuery):
     user_id = call.from_user.id
     list_id = int(call.data.split(':')[1])
 
-    ## Получаем выбранный список @ОБД
-    #watchlist = WatchList.get_or_none(
-    #    (WatchList.list_id == list_id) &
-    #    (WatchList.user == user_id)
-    #)
-    watchlist = get_watchlist(list_id, user_id)  # получаем список или None (запрос к БД)
+    try:
+        # Получаем выбранный список
+        watchlist = get_watchlist(list_id, user_id)  # получаем список или None (запрос к БД) @ОБД
+        if watchlist:  # если мы получили список (ответ был не None)
+            try:
+                pairs = get_watchlist_pairs(watchlist)  # получаем все пары списка
 
-    if watchlist:
-        try:
-            pairs = get_watchlist_pairs(watchlist)
-        except:
-            bot.answer_callback_query(call.id, "Ошибка получения торговых пар списка")
+                # Создаем клавиатуру с действиями
+                markup = get_list_actions_keyboard(list_id, watchlist.show_on_startup)  # @IK
+
+                # Получаем информацию о торговых парах в виде форматированного текста:
+                pairs_text = get_pairs_info(pairs)
+
+                # Выводим список с заголовком и клавиатурой
+                bot.edit_message_text(
+                    f"<b>{watchlist.name}</b>\n{pairs_text}",
+                    user_id,
+                    call.message.message_id,
+                    reply_markup=markup,
+                    parse_mode='HTML'
+                )
+                bot.answer_callback_query(call.id)
+
+            except Exception as e:
+                bot.answer_callback_query(call.id, "Ошибка получения торговых пар списка")
+                print(f'Ошибка при получении всех торговых пар списка: {str(e)}')
+                return
+        else:  # если мы не получили список (ответ был None)
+            bot.answer_callback_query(call.id, "Список не найден!")
+            print(f'Ошибка: список не найден при нажатии на список (кнопку с названием списка) в перечне списков')
             return
-    else:
-        bot.answer_callback_query(call.id, "Список не найден!")
-        return
 
-    # Создаем клавиатуру с действиями
-    #markup = InlineKeyboardMarkup(row_width=2)
-    #markup.add(
-    #    InlineKeyboardButton("Добавить пару", callback_data=f"{ADD_PAIR_TO_LIST_PREFIX}:{list_id}"),
-    #    InlineKeyboardButton("Удалить пару", callback_data=f"{REMOVE_PAIR_FROM_LIST_PREFIX}:{list_id}"),
-    #    InlineKeyboardButton("Переименовать", callback_data=f"{RENAME_LIST_PREFIX}:{list_id}"),
-    #    InlineKeyboardButton("Удалить список", callback_data=f"{DELETE_LIST_PREFIX}:{list_id}")
-    #)
-    #
-
-    # Добавляем кнопку показа при запуске
-    #if watchlist.show_on_startup:
-    #    markup.add(InlineKeyboardButton(
-    #        "Не показывать список при запуске",
-    #        callback_data=f"{REMOVE_STARTUP_PREFIX}:{list_id}"
-    #    ))
-    #else:
-    #    markup.add(InlineKeyboardButton(
-    #        "Показывать список при запуске",
-    #        callback_data=f"{ADD_STARTUP_PREFIX}:{list_id}"
-    #    ))
-
-    markup = get_list_actions_keyboard(list_id, watchlist.show_on_startup)
-
-    # Получаем информацию о торговых парах:
-    pairs_text = get_pairs_info(pairs)
-
-    bot.edit_message_text(
-        f"<b>{watchlist.name}</b>\n{pairs_text}",
-        user_id,
-        call.message.message_id,
-        reply_markup=markup,
-        parse_mode='HTML'
-    )
-    bot.answer_callback_query(call.id)
+    except Exception as e:
+        print(f'Ошибка соединения с БД: не удалось получить список')  # error message
+        bot.answer_callback_query(call.id, "Не удалось получить список")
 

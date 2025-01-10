@@ -20,21 +20,28 @@ def handle_list_complete(call: CallbackQuery):
     with bot.retrieve_data(user_id) as data:
         list_id = data.get('list_id')
 
-    # Находим список по ID и ID пользователя
-    watchlist = get_watchlist(list_id, user_id)
+    try:
+        # Находим список по ID списка и ID пользователя
+        watchlist = get_watchlist(list_id, user_id)  # @ОБД
 
-    if watchlist:
-        # Модифицируем текущий callback
-        call.data = f"show_list:{watchlist.list_id}"
+        if watchlist:  # если список найден, и функция get_watchlist() вернула не None
+            # Модифицируем текущий callback
+            call.data = f"show_list:{watchlist.list_id}"
 
-        # Вызываем handle_list_selection с модифицированным callback
-        callback_query_handlers.handle_list_selection(call)
+            # Вызываем handle_list_selection с модифицированным callback
+            callback_query_handlers.handle_list_selection(call)
 
-        # Сбрасываем состояние после завершения
-        bot.delete_state(user_id)
+            # Сбрасываем состояние после завершения
+            bot.delete_state(user_id)
 
-        # Отвечаем на исходный callback
-        bot.answer_callback_query(call.id)
-    else:
-        bot.answer_callback_query(call.id, "Список не найден")
+            # Отвечаем на исходный callback
+            bot.answer_callback_query(call.id)
+        else:  # если список не найден, т. е. функция get_watchlist() вернула None
+            bot.answer_callback_query(call.id, "Не удается завершить редактирование - список не найден")
+            print(f'Ошибка: не удалось получить список из базы данных при попытке завершения редактирования. '
+                  f'Функция get_watchlist() вернула None')
+    except Exception as e:
+        print(f'Ошибка соединения с базой данных при попытке завершения редактирования списка: {str(e)}')
+        bot.answer_callback_query(call.id, "Ошибка базы данных. Не удается завершить редактирование списка")
+
 

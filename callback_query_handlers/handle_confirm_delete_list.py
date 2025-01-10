@@ -1,7 +1,6 @@
 # Обработчик подтверждения удаления списка
 
 from telebot.types import CallbackQuery
-from models import WatchList
 from bot_instance import bot
 from config import CONFIRM_DELETE_LIST_PREFIX
 from db_operations import delete_watchlist, get_watchlist_name
@@ -17,17 +16,9 @@ def handle_confirm_delete_list(call: CallbackQuery):
     list_id = int(call.data.split(':')[1])
 
     try:
-        # Получаем список @ОБД
-        #watchlist = WatchList.get(
-        #    (WatchList.list_id == list_id) &
-        #    (WatchList.user == user_id)
-        #)
-        #list_name = watchlist.name
-
-        ## Удаляем список
-        #watchlist.delete_instance(recursive=True)
-        watchlist_name = get_watchlist_name(list_id, user_id)
-        delete_watchlist(list_id, user_id)
+        # Получаем список
+        watchlist_name = get_watchlist_name(list_id, user_id)  # @ОБД
+        delete_watchlist(list_id, user_id)  # @ОБД
         # Сообщаем об успешном удалении
         bot.edit_message_text(
             f"Список '{watchlist_name}' удален.",
@@ -37,7 +28,7 @@ def handle_confirm_delete_list(call: CallbackQuery):
         bot.answer_callback_query(call.id)
 
     except Exception as e:
-        # print(f"Error in handle_confirm_delete_list: {str(e)}")  # Отладка
+        print(f"Ошибка при подтверждении удаления списка: {str(e)}")  # error message
         bot.answer_callback_query(
             call.id,
             "Ошибка при удалении списка!"

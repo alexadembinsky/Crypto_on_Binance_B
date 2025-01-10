@@ -1,9 +1,8 @@
 # обработчик выбора пары для удаления из списка
 # (обработчик кнопки с тикером торговой пары, нажатие на которую приводит к удалению торговой пары из списка)
 
-from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from models import User, init_db, WatchList, TradingPair
-from bot_instance import bot, BotStates
+from telebot.types import CallbackQuery
+from bot_instance import bot
 import callback_query_handlers
 from config import DELETE_THE_PAIR_PREFIX
 from db_operations import get_pair_symbol, delete_trading_pair
@@ -19,46 +18,30 @@ def handle_delete_pair(call: CallbackQuery):
 
     parts = call.data.split(':')
     if len(parts) != 3:
+        print('Ошибка формата данных при выборе пары для удаления')  # error message
         bot.answer_callback_query(call.id, "Ошибка формата данных")
         return
 
     list_id = int(parts[1])
     pair_id = int(parts[2])
+    symbol = ''
 
     try:
-        # Получаем пару, проверяя принадлежность пользователю через watchlist @ОБД
-        #pair = (TradingPair
-        #        .select()
-        #        .join(WatchList)
-        #        .where(
-        #    (TradingPair.pair_id == pair_id) &
-        #    (WatchList.user == user_id)
-        #)
-        #        .get())
-
-        #symbol = pair.symbol
-        #pair.delete_instance()
-
-        symbol = get_pair_symbol(pair_id, user_id)  # получаем символ (тикер) торговой пары
+        symbol = get_pair_symbol(pair_id, user_id)  # получаем символ (тикер) торговой пары @ОБД
         if symbol is None:
-            symbol = "не получили символ"
-
-        #bot.answer_callback_query(
-        #    call.id,
-        #    f"Пара {symbol} удалена из списка!"
-        #)
-        if delete_trading_pair(pair_id, user_id):
-            # print('Удалили торговую пару') # Отладка
-            bot.answer_callback_query(call.id, f"Пара {symbol} удалена")
-        else:
-            bot.answer_callback_query(call.id, "Ошибка при удалении пары")
-
-    except (ValueError, IndexError):
-        bot.answer_callback_query(call.id, "Ошибка в формате данных кнопки")
+            symbol = ''
     except Exception as e:
-        # print(f"Ошибка при удалении пары!!!!!!!: {str(e)}")  # Отладка
-        bot.answer_callback_query(call.id, "Ошибка при удалении пары!")
+        print(f"Ошибка при получении символа (тикера) торговой пары: {str(e)}")  # error message
 
+    try:
+        delete_trading_pair(pair_id, user_id)  # удаляем торговую пару @ОБД
+        bot.answer_callback_query(call.id, f"Пара {symbol}{' ' if symbol else ''}удалена")
+    except (ValueError, IndexError) as e:
+        bot.answer_callback_query(call.id, "Торговую пару удалить не удалось")
+        print(f"Ошибка в формате данных кнопки при попытке удаления торговой пары из списка: {str(e)}")  # error message
+    except Exception as e:
+        bot.answer_callback_query(call.id, "Ошибка при удалении пары из списка.")
+        print(f"Ошибка при попытке удаления торговой пары из списка: {str(e)}")  # error message
     finally:
         # Возвращаемся к просмотру списка
         new_call = call

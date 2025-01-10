@@ -111,7 +111,7 @@ def set_startup_list(user_id: int, list_id: int) -> None:
         watchlist.save()
 
 
-def disable_startup_list(list_id: int, user_id: int) -> Tuple[bool, str]:
+def disable_startup_list(list_id: int, user_id: int) -> Tuple[bool, None | bool |str]:
     """
     Отключить показ списка при запуске
 
@@ -122,11 +122,11 @@ def disable_startup_list(list_id: int, user_id: int) -> Tuple[bool, str]:
     try:
         watchlist = get_watchlist(list_id, user_id)
         if not watchlist:
-            return False, "Список не найден"
+            return True, None
 
         watchlist.show_on_startup = False
         watchlist.save()
-        return True, f"Показ списка '{watchlist.name}' при запуске отменен"
+        return True, True
 
     except Exception as e:
         return False, f"Ошибка при отмене показа списка: {str(e)}"
@@ -180,9 +180,9 @@ def get_trading_pair(pair_id: int, user_id: int) -> Optional[TradingPair]:
                 .select()
                 .join(WatchList)
                 .where(
-                    (TradingPair.pair_id == pair_id) &
-                    (WatchList.user == user_id)
-                )
+            (TradingPair.pair_id == pair_id) &
+            (WatchList.user == user_id)
+        )
                 .get())
     except DoesNotExist:
         return None
@@ -250,9 +250,9 @@ def delete_trading_pair(pair_id: int, user_id: int) -> bool:
                 .select()
                 .join(WatchList)
                 .where(
-                    (TradingPair.pair_id == pair_id) &
-                    (WatchList.user == user_id)
-                )
+            (TradingPair.pair_id == pair_id) &
+            (WatchList.user == user_id)
+        )
                 .get())
         pair.delete_instance()
         return True
@@ -282,7 +282,3 @@ def get_pair_symbol(pair_id: int, user_id: int) -> Optional[str]:
             .first())
 
     return pair.symbol if pair else None
-
-
-
-

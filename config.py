@@ -7,6 +7,11 @@ load_dotenv()
 # Настройки бота
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 
+BOT_POLLING_TIMEOUT = 15  # максимальное время в секундах, которое бот будет ждать ответа от серверов Telegram
+# при выполнении long polling запроса
+
+BOT_SLEEPING_BEFORE_RESTART = 15  # Пауза перед автоматическим перезапуском бота в секундах
+
 # Настройки базы данных
 DB_PATH = "database.db"
 

@@ -1,5 +1,5 @@
 import telebot
-from config import DEFAULT_COMMANDS
+from config import DEFAULT_COMMANDS, BOT_POLLING_TIMEOUT, BOT_SLEEPING_BEFORE_RESTART
 from models import init_db
 from bot_instance import bot
 from datetime import datetime
@@ -44,10 +44,10 @@ def main():
         try:
             date, time = print_date_and_time()  # Вывод времени при каждом запуске/перезапуске
             print(f"Binance bot запущен {date} в {time}...")
-            bot.infinity_polling(timeout=15, allowed_updates=["message", "callback_query"])
+            bot.infinity_polling(timeout=BOT_POLLING_TIMEOUT, allowed_updates=["message", "callback_query"])
         except Exception as e:
             print(f"Произошла ошибка: {e}")
-            sleep(15)  # Пауза перед перезапуском
+            sleep(BOT_SLEEPING_BEFORE_RESTART)  # Пауза перед перезапуском
 
 
 if __name__ == '__main__':

@@ -6,6 +6,7 @@ from db_operations import get_user_by_id, get_user_watchlists
 from keyboards import get_watchlists_keyboard
 from other_functions.trace_function_call import trace_function_call
 
+
 # Обработчик команды просмотра списков /lists
 @bot.message_handler(commands=['lists'])
 def handle_show_lists(message: Message):

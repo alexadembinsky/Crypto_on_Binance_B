@@ -12,14 +12,14 @@
 # create_watchlist - Создать новый список
 # get_watchlist_pairs - Получить все пары из списка
 # set_startup_list - Установить список для показа при запуске
-
+# disable_startup_list - Отключить показ списка при запуске
 # delete_watchlist - Удалить список
 # rename_watchlist - Переименовать список
 # get_startup_list - Получить список для показа при запуске
 # check_list_exists - Проверить существование списка с таким именем у пользователя
 # create_list_with_validation - Создать новый список с проверками
 # get_pairs_count - Получить количество пар в списке
-# disable_startup_list - Отключить показ списка при запуске
+
 
 # About trading pair:
 # get_trading_pair - Получить торговую пару по ID с проверкой принадлежности пользователю
@@ -30,8 +30,7 @@
 
 from typing import Optional, List, Tuple
 from models import User, WatchList, TradingPair
-from peewee import Model
-from peewee import DoesNotExist, IntegrityError, DatabaseError
+from peewee import DoesNotExist, OperationalError, DatabaseError
 from other_functions.trace_function_call import trace_function_call
 
 
@@ -225,7 +224,7 @@ def create_list_with_validation(user_id: int, list_name: str) -> Tuple[Optional[
         watchlist = create_watchlist(user, list_name)
         return watchlist, None
 
-    except DatabaseError as e:
+    except (OperationalError, DatabaseError) as e:
         return None, f"Ошибка базы данных: {str(e)}"
     except Exception as e:
         return None, f"Непредвиденная ошибка: {str(e)}"

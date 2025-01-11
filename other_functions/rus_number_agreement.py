@@ -5,7 +5,7 @@ from config import NUMERICAL_CONTEXT
 def rus_number_agreement(pre_word: str, number: int, post_word: str) -> str:
     """
     Функция для number agreement/pluralization в русском языке. Согласует "окружение" чисел по грамматической форме.
-    Например, "Найден 21 предмет", "Найдено 22 предмета", "найдено 25 предметов". Предшествующее и последующее
+    Например, "найден 21 предмет", "найдено 22 предмета", "найдено 25 предметов". Предшествующее и последующее
     слово или словосочетание должны входить в словарь NUMERICAL_CONTEXT в качестве ключа.
 
     Значением ключа является список из трех грамматических форм слова, используемых при указании
@@ -24,7 +24,6 @@ def rus_number_agreement(pre_word: str, number: int, post_word: str) -> str:
     (напр., 'Обнаружен 21 камень', 'Поставлены 22 контейнера')
     :rtype: str
     """
-    # from config import NUMERICAL_CONTEXT
 
     # проверка типа аргументов:
     if not isinstance(pre_word, str):

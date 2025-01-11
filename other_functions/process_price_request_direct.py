@@ -20,9 +20,7 @@ def process_price_request_direct(message: Message, symbol: str):
     try:
         # Если в запросе есть wildcards
         if '*' in symbol or '?' in symbol:
-            # print(f"Processing wildcard pattern: {symbol}")  # Отладка
             matched_pairs = BinanceAPI.find_pairs_by_pattern(symbol)
-            # print(f"Found pairs: {matched_pairs}")  # Отладка
 
             if not matched_pairs:
                 bot.send_message(
@@ -50,7 +48,6 @@ def process_price_request_direct(message: Message, symbol: str):
                 )
 
             else:
-                # print("Showing pairs info directly")  # Отладка
                 show_pairs_info(user_id, matched_pairs)
 
         else:  # Если это конкретная пара без wildcards
@@ -66,7 +63,6 @@ def process_price_request_direct(message: Message, symbol: str):
                 )
 
     except Exception as e:
-        # print(f"Error in process_price_request_direct: {str(e)}")  # Отладка
         if '*' in symbol or '?' in symbol:
             if matched_pairs:
                 bot.send_message(

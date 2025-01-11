@@ -16,10 +16,6 @@ class BinanceAPI:
         :return: Словарь с данными
         """
         trace_function_call()
-        #import inspect  # Отладка
-        #caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        #current_function_name = inspect.currentframe().f_code.co_name # Отладка
-        #print(f"Запущен метод {__name__}({symbol}) - был вызван функцией: {caller_name}")  # Отладка
         endpoint = f"{BINANCE_API_URL}/ticker/24hr"
         params = {'symbol': symbol} if symbol else {}
 
@@ -43,9 +39,6 @@ class BinanceAPI:
     @staticmethod
     def get_pairs_with_prices(pairs: List[str]) -> Dict[str, Dict[str, float]]:
         trace_function_call()
-        #import inspect  # Отладка
-        #caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        #print(f"Запущена функция get_pairs_with_prices - была вызвана функцией: {caller_name}")  # Отладка
 
         """
         Получение цен и изменений для списка пар одним запросом без параметров
@@ -72,10 +65,6 @@ class BinanceAPI:
     @staticmethod
     def get_pairs_with_prices_as_text(pairs: List[str]) -> str:
         trace_function_call()
-        #import inspect  # Отладка
-        #caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        #print(f"Запущена функция get_pairs_with_prices_as_text({pairs}) - была вызвана функцией: {caller_name}")
-        # Отладка
 
         """
         Получение цен и изменений для списка пар в виде отформатированного текста с цветовым символом роста/падения
@@ -120,9 +109,6 @@ class BinanceAPI:
         :return: Отформатированная строка с ценой и изменением
         """
         trace_function_call()
-        # import inspect  # Отладка
-        # caller_name = inspect.currentframe().f_back.f_code.co_name  # Отладка
-        # print(f"Функция format_price_change - была вызвана функцией: {caller_name}")  # Отладка
 
         try:
             data = BinanceAPI.get_ticker_24h(symbol)
@@ -137,20 +123,11 @@ class BinanceAPI:
             sign = ''
             change_fmt = f'{change:.1f}%'
             if change > 0:
-                # change_fmt = f"(+{change:.1f}%) {RISING}"
                 sign = '+'
-            elif change < 0:
-                # change_fmt = f"({change:.1f}%) {FALLING}"
-                pass
-            else:
-                # change_fmt = f"({change:.1f}%)"
-                pass
-
-            # print(price, change, sign)  # отладка
 
             return RISING if change > 0 else FALLING if change < 0 else UNCHANGED, f"{price_fmt} ({sign}{change_fmt})"
         except Exception as e:
-            print(f"Error formatting price for {symbol}: {str(e)}")
+            print(f"Не найден тикер по запросу {symbol}: {str(e)}")
             raise
 
     @staticmethod

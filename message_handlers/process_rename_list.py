@@ -1,7 +1,6 @@
 # Обработчик ввода нового названия списка
 
 from telebot.types import Message
-from models import WatchList
 from bot_instance import bot, BotStates
 from db_operations import get_watchlist, rename_watchlist
 from other_functions.trace_function_call import trace_function_call

@@ -1,6 +1,6 @@
 # Обработчик ввода названия списка
 
-from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import Message
 from bot_instance import bot
 from bot_instance import BotStates
 from db_operations import create_list_with_validation
@@ -17,7 +17,6 @@ def process_list_name(message: Message):
     list_name = message.text.strip()
 
     error = None
-    restart_this_handler = False
     # Проверяем длину названия
     if len(list_name) < 1 or len(list_name) > 50:
         bot.send_message(
@@ -35,23 +34,8 @@ def process_list_name(message: Message):
             bot.send_message(user_id, error)
             return
         else:  # если список был благополучно создан
-            # Создаем клавиатуру с кнопками @IK
-            #markup = InlineKeyboardMarkup(row_width=2)
-            #markup.add(
-            #    InlineKeyboardButton(
-            #        "Добавить пару",
-            #        callback_data=f"add_pair:{watchlist.list_id}"
-            #    ),
-            #    InlineKeyboardButton(
-            #        "Переименовать",
-            #        callback_data=f"rename_list:{watchlist.list_id}"
-            #    ),
-            #    InlineKeyboardButton(
-            #        "Удалить список",
-            #        callback_data=f"delete_list:{watchlist.list_id}"
-            #    )
-            #)
-            markup = get_new_list_actions_keyboard(watchlist.list_id)
+            # Создаем клавиатуру с кнопками
+            markup = get_new_list_actions_keyboard(watchlist.list_id)  # @IK
 
             # Отправляем сообщение с кнопками
             bot.send_message(

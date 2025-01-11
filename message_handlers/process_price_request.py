@@ -2,9 +2,8 @@
 
 from telebot.types import Message
 from binance_api import BinanceAPI
-from other_functions import rus_number_agreement
+from other_functions import rus_number_agreement, show_pairs_info
 from bot_instance import bot, BotStates
-from other_functions import show_pairs_info
 from keyboards import get_show_many_pairs_confirmation_keyboard
 from other_functions.trace_function_call import trace_function_call
 from config import AUTO_DISPLAY_PAIRS_LIMIT
@@ -15,7 +14,6 @@ from config import AUTO_DISPLAY_PAIRS_LIMIT
 def process_price_request(message: Message):
     """Обработчик запроса цены конкретной пары"""
     trace_function_call()
-    # print('Запущена функция process_price_request - Обработчик запроса цены конкретной пары')  # Отладка
     user_id = message.from_user.id
     symbol = message.text.strip().upper()
     matched_pairs = []  # Инициализируем переменную
@@ -23,9 +21,7 @@ def process_price_request(message: Message):
     try:
         # Если в запросе есть wildcards
         if '*' in symbol or '?' in symbol:
-            # print(f"Processing wildcard pattern: {symbol}")  # Отладка
-            matched_pairs = BinanceAPI.find_pairs_by_pattern(symbol)
-            # print(f"PROCESS PRICE REQUEST 27 Found pairs: {matched_pairs}")  # Отладка
+            matched_pairs = BinanceAPI.find_pairs_by_pattern(symbol)  # @API req
 
             if not matched_pairs:
                 bot.send_message(
@@ -67,7 +63,6 @@ def process_price_request(message: Message):
             bot.delete_state(user_id)  # Удаляем состояние для конкретной пары
 
     except Exception as e:
-        # print(f"Error in process_price_request: {str(e)}")  # Отладка
         if '*' in symbol or '?' in symbol:
             if matched_pairs:
                 bot.send_message(
@@ -75,11 +70,13 @@ def process_price_request(message: Message):
                     "Найдены пары, но произошла ошибка при получении цен. "
                     "Пожалуйста, попробуйте позже."
                 )
+                print(f'Ошибка получения данных о ценах по API: {str(e)}')
             else:
                 bot.send_message(
                     user_id,
                     "Произошла ошибка при обработке запроса."
                 )
+                print(f'Ошибка получения данных по API: {str(e)}')
         else:
             bot.send_message(
                 user_id,

@@ -1,6 +1,6 @@
 # Обработчик ввода торговой пары при добавлении в список
 
-from telebot.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import Message
 from binance_api import BinanceAPI
 from bot_instance import bot, BotStates
 from db_operations import get_watchlist, check_pair_exists, create_trading_pair
@@ -20,56 +20,23 @@ def process_add_pair(message: Message):
     with bot.retrieve_data(user_id) as data:
         list_id = data['list_id']
 
+    # Проверяем существование пары на Binance
+    exists, price = BinanceAPI.check_pair(symbol)
+    if not exists:
+        bot.send_message(
+            user_id,
+            f"Ошибка: пара {symbol} не найдена на бирже. "
+            "Проверьте правильность написания."
+        )
+        return
+
     try:
-        # Проверяем существование пары на Binance
-        # data = BinanceAPI.get_ticker_24h(symbol) # старое
-        # price = float(data['lastPrice'])  # если пара не существует, будет исключение # старое
-        # новое:
-        exists, price = BinanceAPI.check_pair(symbol)
-        if not exists:
-            bot.send_message(
-                user_id,
-                f"Ошибка: пара {symbol} не найдена на бирже. "
-                "Проверьте правильность написания."
-            )
-            return  # /новое
-
-        # Получаем список: @ОБД
-        #watchlist = WatchList.get(
-        #    (WatchList.list_id == list_id) &
-        #    (WatchList.user == user_id)
-        #)
-        watchlist = get_watchlist(list_id, user_id)
-
-        # Проверяем, нет ли уже такой пары в списке и, если нет, до добавляем; если есть, сообщаем об этом @ОБД
-        #existing_pair = TradingPair.get_or_none(
-        #    (TradingPair.watchlist == watchlist) &
-        #    (TradingPair.symbol == symbol)
-        #)
-
-        #if existing_pair:
-        #    bot.send_message(
-        #        user_id,
-        #        f"Пара {symbol} уже есть в этом списке!"
-        #    )
-        #else:
-        #    # Добавляем новую пару @ОБД
-        #    TradingPair.create(
-        #        watchlist=watchlist,
-        #        symbol=symbol
-        #    )
+        watchlist = get_watchlist(list_id, user_id)  # @БД
         if check_pair_exists(watchlist, symbol):
             bot.send_message(user_id, f"Пара {symbol} уже есть в этом списке!")
         else:
             create_trading_pair(watchlist, symbol)
-
-            # Выводим клавиатуру добавления еще одной пары @IK
-            #markup = InlineKeyboardMarkup(row_width=1)
-            #markup.add(
-            #    InlineKeyboardButton("Добавить ещё пару", callback_data=f"add_pair:{list_id}"),
-            #    InlineKeyboardButton("Завершить редактирование списка", callback_data="list_complete")
-            #)
-            markup = get_add_more_pair_keyboard(list_id)
+            markup = get_add_more_pair_keyboard(list_id)  # @IK
 
             # Если цена нулевая, у нас есть дополнение к сообщению
             if price == 0:
@@ -86,14 +53,8 @@ def process_add_pair(message: Message):
             )
 
     except Exception as e:
-        # print(f"Error in process_add_pair: {str(e)}")  # Отладка
+        print(f"Произошла ошибка при добавлении пары. Не удалось подключиться к базе данных: {str(e)}")  # Отладка
         bot.send_message(
             user_id,
-            f"Произошла ошибка при добавлении пары: {str(e)}"
+            f"Ошибка при добавлении пары. Не удалось подключиться к базе данных. {str(e)}"
         )
-
-    finally:
-        # Сбрасываем состояние
-        # bot.delete_state(user_id)  # Не сбрасываем состояние для того, чтобы обработчик handle_list_complete
-        # мог извлечь ID списка
-        pass

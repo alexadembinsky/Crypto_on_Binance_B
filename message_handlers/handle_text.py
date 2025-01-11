@@ -4,6 +4,8 @@ from telebot.types import Message
 from other_functions import is_valid_ticker_request, process_price_request_direct
 from bot_instance import bot
 from other_functions.trace_function_call import trace_function_call
+# Словарь для хранения состояния пользователей
+user_states = {}
 
 
 # Обработчик текстовых сообщений как запросов тикера
@@ -11,6 +13,7 @@ from other_functions.trace_function_call import trace_function_call
 def handle_text(message: Message):
     """Обработчик текстовых сообщений как запросов тикера"""
     trace_function_call()
+
     # Проверяем, не находится ли пользователь в каком-либо состоянии
     if bot.get_state(message.from_user.id):
         return  # Если да, позволяем другим обработчикам обработать сообщение
@@ -25,7 +28,16 @@ def handle_text(message: Message):
 
     # Проверяем первое слово на валидность
     if not is_valid_ticker_request(potential_ticker):
-        bot.reply_to(message, "Введите тикер или команду")
+        user_id = message.from_user.id
+        if user_id not in user_states:
+            # Первая ошибка
+            user_states[user_id] = True
+            bot.reply_to(message, "Введите тикер или команду")
+        else:
+            # Последующие ошибки
+            bot.reply_to(message, "Некорректный запрос. Запрос может включать в себя латинские буквы в любом регистре, "
+                                  "цифры, символы дефиса, подчеркивания, точки, а также символы подстановки * и ?. "
+                                  "Длина запроса ограничена 20 символами. Попробуйте еще раз.")
         return
 
     # Если сообщение содержит более одного слова, проверяем только первое

@@ -2,7 +2,7 @@
 
 from telebot.types import Message
 from binance_api import BinanceAPI
-from other_functions import rus_number_agreement, show_pairs_info
+from other_functions import rus_number_agreement, show_pairs_info, is_valid_ticker_request
 from bot_instance import bot, BotStates
 from keyboards import get_show_many_pairs_confirmation_keyboard
 from other_functions.trace_function_call import trace_function_call
@@ -17,6 +17,13 @@ def process_price_request(message: Message):
     user_id = message.from_user.id
     symbol = message.text.strip().upper()
     matched_pairs = []  # Инициализируем переменную
+
+    # Проверяем запрос на валидность
+    if not is_valid_ticker_request(symbol):
+        bot.reply_to(message, "Некорректный запрос. Запрос может включать в себя латинские буквы в любом регистре, "
+                              "цифры, символы дефиса, подчеркивания, точки, а также символы подстановки * и ?. "
+                              "Длина запроса ограничена 20 символами. Попробуйте еще раз.")
+        return
 
     try:
         # Если в запросе есть wildcards
